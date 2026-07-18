@@ -272,7 +272,7 @@
           <p class="lead">
             <b>Rambow</b> is a personal collection app for one job: completing card rainbows.
             It knows every card you own, knows every parallel that exists, shows the gap between the two —
-            and then hunts eBay for the missing pieces so you can close them. Seeded from
+            and then hunts the card marketplaces for the missing pieces so you can close them. Seeded from
             <b>MyFootballCards.xlsx</b>, styled after the LA&nbsp;Rams, built around the two featured chases:
             <b>Aaron&nbsp;Donald&nbsp;#99</b> and <b>Marshall&nbsp;Faulk&nbsp;#28</b>.
           </p>
@@ -280,7 +280,7 @@
             <div><b>Owner</b>Jarrod — sole user</div>
             <div><b>Seed data</b>MyFootballCards.xlsx (Rams + Faulk sheets)</div>
             <div><b>Buy-side</b>Watchlist alerts + in-app live search</div>
-            <div><b>Out of scope</b>Selling features, auto-purchase</div>
+            <div><b>Out of scope</b>Selling features, auto-purchase, photographing your own cards</div>
           </div>
           <div class="hero-band">
             <div>
@@ -331,7 +331,7 @@
           <div class="grid-3">
             <div class="card navy">
               <h4>Know what you own</h4>
-              <p>Every card from the spreadsheet, browsable and searchable, each with a photo. Serial numbers, print runs, and grades preserved exactly.</p>
+              <p>Every card from the spreadsheet, browsable and searchable, each with an image Rambow sources for you. Serial numbers, print runs, and grades preserved exactly.</p>
             </div>
             <div class="card navy">
               <h4>See every rainbow</h4>
@@ -339,7 +339,7 @@
             </div>
             <div class="card navy">
               <h4>Close the gaps</h4>
-              <p>Live eBay search on any missing parallel, plus a watchlist that pings your phone when a listing appears under your target price.</p>
+              <p>Live search on any missing parallel across the card marketplaces, plus a watchlist that pings your phone when a listing appears under your target price.</p>
             </div>
           </div>
           <h3 class="sub">Featured chases <span class="tag">AD 99 · MF 28</span></h3>
@@ -397,44 +397,63 @@
           <p class="eyebrow"><span class="idx">04</span>Find &amp; buy</p>
           <h2 class="headline">The hunt. <em>You pull the trigger.</em></h2>
           <p class="lead">
-            Both buy-side modes you picked, powered by the <a href="https://developer.ebay.com/api-docs/buy/browse/overview.html">eBay Browse API</a> —
-            the same integration already running in your morning report (JBCardSearch keyset), so credentials and query
-            patterns are proven. Hard guardrail: <b>Rambow never buys anything.</b> Every path ends in a deep link to the
-            eBay listing where you tap Buy yourself.
+            Both buy-side modes you picked, running across <b>every marketplace where sports cards actually trade</b> —
+            not just eBay. eBay is the deep integration (the <a href="https://developer.ebay.com/api-docs/buy/browse/overview.html">Browse API</a>,
+            same keys already running in your morning report); the rest are covered as honestly as their tech allows.
+            Hard guardrail: <b>Rambow never buys anything.</b> Every path ends in a deep link to the listing where you
+            tap Buy yourself.
+          </p>
+
+          <h3 class="sub">The marketplaces <span class="tag">Tiered by what's technically possible</span></h3>
+          <table class="gtable">
+            <tr><th>Marketplace</th><th>Why it matters</th><th>Integration</th></tr>
+            <tr><td><a href="https://www.ebay.com">eBay</a></td><td>Deepest pool by far — fixed price + auctions, raw and slabbed</td><td><span class="pill royal">API</span> &nbsp;Live search + nightly watch scans via Browse API (existing keys)</td></tr>
+            <tr><td><a href="https://www.comc.com">COMC</a></td><td>Consignment warehouse; huge singles inventory, every card scanned front/back</td><td><span class="pill sol">Watchable</span> &nbsp;Structured search URLs checked nightly per watch; also a prime image source</td></tr>
+            <tr><td><a href="https://www.myslabs.com">MySlabs</a></td><td>Peer-to-peer graded/slab marketplace, low fees → fair prices</td><td><span class="pill sol">Watchable</span> &nbsp;Saved-search pages checked nightly per watch</td></tr>
+            <tr><td><a href="https://www.sportlots.com">Sportlots</a></td><td>Cheap base and lower-tier parallels — rainbow filler territory</td><td><span class="pill bone">Deep link</span> &nbsp;Pre-built search link on every missing parallel</td></tr>
+            <tr><td><a href="https://marketplace.beckett.com">Beckett Marketplace</a></td><td>Dealer inventory aggregator</td><td><span class="pill bone">Deep link</span> &nbsp;Pre-built search link</td></tr>
+            <tr><td><a href="https://www.whatnot.com">Whatnot</a></td><td>Livestream auctions — deals happen live, streams can't be scanned</td><td><span class="pill bone">Deep link</span> &nbsp;Search/seller links per player; a "check the streams" surface, not a feed</td></tr>
+            <tr><td><a href="https://www.fanaticscollect.com">Fanatics Collect</a> · <a href="https://goldin.co">Goldin</a></td><td>Premium auction houses — where grail-tier pieces (1/1s, low serials) surface</td><td><span class="pill bone">Deep link</span> &nbsp;Saved-search links, worth a manual sweep for grail watches</td></tr>
+            <tr><td><a href="https://130point.com/sales/">130point</a></td><td>Free sold-comps lookup (includes eBay best-offer reveals)</td><td><span class="pill ghost">Reference</span> &nbsp;Linked from every watch to sanity-check your target price</td></tr>
+          </table>
+          <p class="cap" style="margin-top:12px">
+            Plain truth: only eBay offers a public API. <b>Watchable</b> sites get best-effort nightly page checks that can break
+            when a site changes and get fixed when they do; <b>deep-link</b> sites get one-tap pre-built searches on every missing
+            parallel — you look, Rambow remembers what you're looking for.
           </p>
 
           <h3 class="sub">Mode 1 · Watchlist + price alerts</h3>
           <div class="flow">
             <span class="fstep you"><span class="fdot"></span>Set target price on a missing parallel</span>
             <span class="farrow">→</span>
-            <span class="fstep app"><span class="fdot"></span>Nightly scan queries eBay per watch</span>
+            <span class="fstep app"><span class="fdot"></span>Nightly scan: eBay API + COMC/MySlabs checks</span>
             <span class="farrow">→</span>
             <span class="fstep app"><span class="fdot"></span>Match found under target</span>
             <span class="farrow">→</span>
             <span class="fstep out"><span class="fdot"></span>ntfy push to your phone</span>
             <span class="farrow">→</span>
-            <span class="fstep ext"><span class="fdot"></span>Tap → eBay listing → you buy</span>
+            <span class="fstep ext"><span class="fdot"></span>Tap → listing on that marketplace → you buy</span>
           </div>
           <p class="cap" style="margin-top:10px">
             Same <a href="https://ntfy.sh">ntfy</a> channel pattern as the morning report. Each watch stores the exact query
             (player, year, product, card #, parallel, serial hints like "/25"), a target price, and a raw/graded preference.
-            Alerts include title, price, condition, thumbnail, and the listing link.
+            Alerts include marketplace, title, price, condition, thumbnail, and the listing link.
           </p>
 
           <h3 class="sub">Mode 2 · In-app live search</h3>
           <div class="flow">
             <span class="fstep you"><span class="fdot"></span>Tap any missing parallel</span>
             <span class="farrow">→</span>
-            <span class="fstep app"><span class="fdot"></span>Live eBay query, pre-built &amp; tuned</span>
+            <span class="fstep app"><span class="fdot"></span>Live eBay results + fresh COMC/MySlabs matches</span>
             <span class="farrow">→</span>
-            <span class="fstep app"><span class="fdot"></span>Listings ranked: exact match first, price ascending</span>
+            <span class="fstep app"><span class="fdot"></span>Ranked: exact match first, price ascending, marketplace badged</span>
             <span class="farrow">→</span>
-            <span class="fstep ext"><span class="fdot"></span>Open listing on eBay</span>
+            <span class="fstep ext"><span class="fdot"></span>Open listing — plus one-tap searches on Sportlots · Whatnot · Fanatics · Goldin</span>
           </div>
           <div class="flow-key">
             <div><i style="background:var(--sol)"></i>You</div>
             <div><i style="background:var(--navy)"></i>Rambow</div>
-            <div><i style="background:var(--royal)"></i>eBay</div>
+            <div><i style="background:var(--royal)"></i>Marketplace</div>
             <div><i style="background:var(--dim)"></i>Notification</div>
           </div>
           <div class="note-banner">
@@ -447,31 +466,36 @@
         <!-- ================= 05 IMAGERY ================= -->
         <section id="imagery">
           <p class="eyebrow"><span class="idx">05</span>Find &amp; buy</p>
-          <h2 class="headline">Every card <em>gets a face</em></h2>
+          <h2 class="headline">Every card <em>gets a face.</em> You shoot <em>nothing.</em></h2>
           <p class="lead">
-            A rainbow page with 26 gray placeholders isn't a rainbow. Two image pipelines fix that — one for what you own,
-            one for what you're missing.
+            A rainbow page with 26 gray placeholders isn't a rainbow. Rambow sources every image itself —
+            <b>zero photography sessions</b>. Two automatic pipelines, same sources.
           </p>
           <div class="grid-2">
             <div class="card">
-              <h4>Owned cards — your photos</h4>
+              <h4>Owned cards — sourced for you</h4>
               <p>
-                A phone-friendly capture flow: open Rambow on your phone, tap a card, shoot front (back optional) —
-                stored in Supabase Storage, auto-cropped and linked. A "needs photo" queue works through the backlog
-                worst-first (featured chases → graded slabs → everything else). For slabbed cards, the cert number
-                on the label doubles as verification. Until you shoot a card, an eBay stock image of the same
-                parallel stands in, clearly badged as a stand-in.
+                A background job finds an image for every card in the collection: eBay listing photos and
+                <a href="https://www.comc.com">COMC</a>'s front/back scans of the same year / product / card # / parallel.
+                Serial-numbered cards get an extra pass — if a listing photo shows <i>your exact serial</i> (say, your 11/25),
+                that image is flagged as "likely your actual copy." Slabbed cards match on grade too, so a PSA 10 shows
+                a PSA 10 slab. Every image carries a small source badge, and you can swap any image for a better one
+                (or upload your own for a favorite) — optional, never required.
               </p>
             </div>
             <div class="card">
               <h4>Missing cards — reference images</h4>
               <p>
                 For every <b>active chase</b> (the &gt;50% rainbows, per the 50% rule), missing parallels get reference
-                images pulled automatically from eBay listing photos via the Browse API. So the rainbow grid shows the
-                actual Tie-Dye you're hunting, not a question mark. Below 50%, no fetching — keeps API calls and
-                storage focused on chases that are real.
+                images pulled automatically from the same sources. So the rainbow grid shows the actual Tie-Dye you're
+                hunting, not a question mark. Below 50%, no fetching — keeps API calls and storage focused on chases
+                that are real.
               </p>
             </div>
+          </div>
+          <div class="note-banner">
+            <b>Coverage expectation:</b> common parallels image instantly; obscure ones (short prints that rarely list) may sit
+            as placeholders until a listing appears anywhere — the sourcing job keeps retrying weekly and fills them in over time.
           </div>
         </section>
 
@@ -485,8 +509,8 @@
             <tr><td>1</td><td><b>Rainbow Room</b> (dashboard)</td><td>Featured chases (AD · Faulk) up top; "closest to done" rail of active chases with meters; recent alerts</td><td>Jump into a rainbow</td></tr>
             <tr><td>2</td><td>Rainbow detail</td><td>The full parallel grid for one card-set — owned (photo), missing (reference image), tiers, print runs, completion meter</td><td>Tap a missing card → hunt</td></tr>
             <tr><td>3</td><td>Player page</td><td>All of a player's card-sets ranked by completion; player stats (cards, spend, 1/1s)</td><td>Open a rainbow</td></tr>
-            <tr><td>4</td><td>Card detail</td><td>One card: photos, serial, print run, grade, purchase price, notes from the spreadsheet</td><td>Add/replace photo</td></tr>
-            <tr><td>5</td><td>The Hunt</td><td>Live eBay results for a missing parallel, exact-match ranked, price ascending</td><td>Open listing on eBay · Add to watchlist</td></tr>
+            <tr><td>4</td><td>Card detail</td><td>One card: sourced image (with source badge), serial, print run, grade, purchase price, notes from the spreadsheet</td><td>Swap image (optional)</td></tr>
+            <tr><td>5</td><td>The Hunt</td><td>Live listings for a missing parallel — eBay + COMC/MySlabs matches ranked exact-match first, plus one-tap searches on Sportlots, Whatnot, Fanatics Collect, Goldin</td><td>Open listing · Add to watchlist</td></tr>
             <tr><td>6</td><td>Watchlist</td><td>Every watch with target price, last scan, latest matches, alert history</td><td>Adjust target · pause</td></tr>
             <tr><td>7</td><td>Import &amp; checklists</td><td>Spreadsheet re-import (diff preview), checklist editor per card-set, flagged eBay-discovered parallels</td><td>Approve checklist changes</td></tr>
           </table>
@@ -590,11 +614,11 @@
             <div class="uc"><div class="uc-id">UC-02 · Seed</div><div class="uc-t">Re-import without damage</div><div class="uc-flow">You update the xlsx; re-import shows a diff preview (new / changed / removed) before applying.</div><div class="uc-done">A re-import never silently deletes a card or a photo link.</div></div>
             <div class="uc"><div class="uc-id">UC-03 · Rainbow</div><div class="uc-t">See a rainbow honestly</div><div class="uc-flow">Open 2021 Select #120 — grid shows 25 owned with photos, ~7 missing with names, tiers, print runs.</div><div class="uc-done">Completion % matches a manual count against the verified checklist.</div></div>
             <div class="uc"><div class="uc-id">UC-04 · Rainbow</div><div class="uc-t">Cross the 50% line</div><div class="uc-flow">A pickup pushes a rainbow past 50% — it's promoted to active chase automatically.</div><div class="uc-done">Missing-card reference images appear within a day, no manual step.</div></div>
-            <div class="uc"><div class="uc-id">UC-05 · Hunt</div><div class="uc-t">Hunt a missing parallel</div><div class="uc-flow">Tap the missing Tie-Dye → live eBay results, junk filtered, cheapest exact match on top.</div><div class="uc-done">Top result is genuinely the right card ≥8 times out of 10.</div></div>
+            <div class="uc"><div class="uc-id">UC-05 · Hunt</div><div class="uc-t">Hunt a missing parallel</div><div class="uc-flow">Tap the missing Tie-Dye → live eBay + COMC/MySlabs results, junk filtered, cheapest exact match on top, marketplace badged — plus one-tap searches on the deep-link sites.</div><div class="uc-done">Top result is genuinely the right card ≥8 times out of 10.</div></div>
             <div class="uc"><div class="uc-id">UC-06 · Hunt</div><div class="uc-t">Set a watch, get the ping</div><div class="uc-flow">Watch "2020 Select #133 Neon Orange Pulsar /7, ≤$60" → nightly scan → ntfy push on match.</div><div class="uc-done">Alert lands on your phone with price, photo, and a link that opens the listing.</div></div>
             <div class="uc"><div class="uc-id">UC-07 · Hunt</div><div class="uc-t">Kill bad matches</div><div class="uc-flow">A result is a reprint/custom/wrong parallel — tap "not a match," the query template learns the negative keyword.</div><div class="uc-done">The same junk listing never resurfaces for that watch.</div></div>
-            <div class="uc"><div class="uc-id">UC-08 · Photos</div><div class="uc-t">Shoot a card in seconds</div><div class="uc-flow">Phone → needs-photo queue → camera → auto-crop → next card. Rhythm, not friction.</div><div class="uc-done">A 20-card session takes under 10 minutes end to end.</div></div>
-            <div class="uc"><div class="uc-id">UC-09 · Photos</div><div class="uc-t">Buy it, log it, done</div><div class="uc-flow">You win a card on eBay → mark the watch "acquired" → card moves to inventory, rainbow recounts, watch closes.</div><div class="uc-done">One action updates inventory, rainbow %, and watchlist together.</div></div>
+            <div class="uc"><div class="uc-id">UC-08 · Images</div><div class="uc-t">The shelf fills itself</div><div class="uc-flow">Import finishes → the sourcing job matches eBay photos and COMC scans to every card, exact-serial matches flagged "likely your copy."</div><div class="uc-done">≥90% of the collection has an image within a week, with zero manual work.</div></div>
+            <div class="uc"><div class="uc-id">UC-09 · Loop</div><div class="uc-t">Buy it, log it, done</div><div class="uc-flow">You win a card on any marketplace → mark the watch "acquired" → card moves to inventory, rainbow recounts, watch closes, image sources automatically.</div><div class="uc-done">One action updates inventory, rainbow %, and watchlist together.</div></div>
             <div class="uc"><div class="uc-id">UC-10 · Checklist</div><div class="uc-t">Verify a checklist</div><div class="uc-flow">Phase-2 research fills the master checklist for a product; source link stored per checklist.</div><div class="uc-done">Top-10 rainbows show verified totals, not "~" estimates.</div></div>
             <div class="uc"><div class="uc-id">UC-11 · Checklist</div><div class="uc-t">Discover an unknown parallel</div><div class="uc-flow">eBay listing mentions a parallel not on the checklist → flagged in Import &amp; Checklists for your approve/reject.</div><div class="uc-done">Checklists get more complete over time without silent auto-edits.</div></div>
             <div class="uc"><div class="uc-id">UC-12 · Featured</div><div class="uc-t">Open on the chase</div><div class="uc-flow">App opens to the Rainbow Room — AD and Faulk banners, meters moving as pickups land.</div><div class="uc-done">One glance answers "how close am I, and what should I buy next?"</div></div>
@@ -618,7 +642,9 @@
             <div class="gl"><b>Slab</b><span>A card professionally graded and sealed in a labeled case (PSA, BGS, SGC), with a cert number.</span></div>
             <div class="gl"><b>PSA 10 / BGS 9.5</b><span>Grades — a 1-to-10 condition score from a grading company. Gem Mint 10 commands the premium.</span></div>
             <div class="gl"><b>Comp</b><span>A recent sold price for the same card — what the market actually pays, vs. what sellers ask.</span></div>
-            <div class="gl"><b>eBay Browse API</b><span>eBay's official search API — how Rambow finds live listings without scraping.</span></div>
+            <div class="gl"><b>eBay Browse API</b><span>eBay's official search API — the only card marketplace with one, and Rambow's deepest integration.</span></div>
+            <div class="gl"><b>COMC</b><span>"Check Out My Cards" — consignment warehouse marketplace where every listed card is scanned front and back. Rambow's best image source.</span></div>
+            <div class="gl"><b>Whatnot</b><span>Livestream auction app where cards sell in real time — deals happen there, but streams can't be scanned, so Rambow deep-links you in.</span></div>
             <div class="gl"><b>Master checklist</b><span>The verified list of every parallel that exists for a card-set. What your rainbow is measured against.</span></div>
             <div class="gl"><b>Active chase</b><span>A rainbow past 50% completion — gets missing-card images, dashboard placement, and alert eligibility.</span></div>
           </div>
@@ -632,16 +658,16 @@
           <div class="grid-3">
             <div class="card"><h4>Frontend</h4><p>React + Vite, mobile-first (the photo flow lives on your phone). Rams theme: royal navy chrome, Sol accents, Bone canvas, Archivo display type.</p></div>
             <div class="card"><h4>Data</h4><p>Supabase — Postgres for cards, checklists, watches, alerts; Storage for card photos and reference images. Single user, simple auth.</p></div>
-            <div class="card"><h4>Jobs &amp; hosting</h4><p>DigitalOcean App Platform, auto-deploy from GitHub. Nightly scan job hits eBay Browse (existing JBCardSearch keys) and pushes via ntfy.</p></div>
+            <div class="card"><h4>Jobs &amp; hosting</h4><p>DigitalOcean App Platform, auto-deploy from GitHub. Nightly jobs: eBay Browse scan (existing JBCardSearch keys) + COMC/MySlabs watch checks + image sourcing, alerts via ntfy.</p></div>
           </div>
           <h3 class="sub">Data model <span class="tag">Five tables</span></h3>
           <table class="gtable">
             <tr><th>Table</th><th>What it holds</th></tr>
             <tr><td>card_sets</td><td>Player + year + product + card # — the unit a rainbow is measured on (207 seeded)</td></tr>
             <tr><td>parallels</td><td>Master checklist rows per card_set: name, tier, print run, source URL, status (verified / estimated / ebay-flagged)</td></tr>
-            <tr><td>cards</td><td>Your inventory (593 seeded): parallel link, serial #, grade, purchase price, notes, photo refs</td></tr>
-            <tr><td>watches</td><td>Missing-parallel watches: query template, negative keywords, target price, raw/graded pref, status</td></tr>
-            <tr><td>alerts</td><td>Every match ever pushed: listing id, price, thumbnail, outcome (bought / passed / junk)</td></tr>
+            <tr><td>cards</td><td>Your inventory (593 seeded): parallel link, serial #, grade, purchase price, notes, sourced image refs (source + likely-your-copy flag)</td></tr>
+            <tr><td>watches</td><td>Missing-parallel watches: query template, negative keywords, target price, raw/graded pref, per-marketplace search URLs, status</td></tr>
+            <tr><td>alerts</td><td>Every match ever pushed: marketplace, listing id, price, thumbnail, outcome (bought / passed / junk)</td></tr>
           </table>
           <p class="cap" style="margin-top:12px">
             The import script is idempotent: re-running against an updated spreadsheet diffs before writing (UC-02).
@@ -660,9 +686,9 @@
             <div class="pnum">Phase 1<small>Seed &amp; shelf</small></div>
             <div>
               <h4>Everything you own, on screen</h4>
-              <p>Import both sheets, build the inventory browser, player pages, and card detail. Photo capture flow ships here — the needs-photo queue starts working through 593 cards, eBay stock stand-ins fill the gaps meanwhile.</p>
+              <p>Import both sheets, build the inventory browser, player pages, and card detail. The image-sourcing job ships here — eBay photos and COMC scans matched to all 593 cards automatically, exact-serial matches flagged.</p>
               <ul>
-                <li>Scorecard: 593/593 cards browsable · import diff-safe · first 50 photos shot on your phone</li>
+                <li>Scorecard: 593/593 cards browsable · import diff-safe · ≥90% of cards auto-illustrated in week one</li>
               </ul>
             </div>
           </div>
@@ -680,9 +706,9 @@
             <div class="pnum">Phase 3<small>The hunt</small></div>
             <div>
               <h4>Find and buy</h4>
-              <p>eBay Browse integration, live search on missing parallels, watchlist with target prices, nightly scan, ntfy alerts, "acquired" flow closing the loop back into inventory.</p>
+              <p>eBay Browse integration plus COMC/MySlabs nightly checks and deep-link searches for the rest (Sportlots, Beckett, Whatnot, Fanatics Collect, Goldin). Live search on missing parallels, watchlist with target prices, ntfy alerts, "acquired" flow closing the loop back into inventory.</p>
               <ul>
-                <li>Scorecard: first real under-target alert lands on your phone · first card bought off an alert</li>
+                <li>Scorecard: first real under-target alert lands on your phone · first card bought off an alert · every missing parallel has one-tap searches on all marketplaces</li>
               </ul>
             </div>
           </div>
@@ -690,9 +716,9 @@
             <div class="pnum">Phase 4<small>Polish</small></div>
             <div>
               <h4>Faces and finish</h4>
-              <p>Reference images auto-fetched for all active chases, glossary tooltips everywhere, junk-filter learning loop, eBay-discovered parallel flagging, photo backlog burn-down.</p>
+              <p>Reference images auto-fetched for all active chases, glossary tooltips everywhere, junk-filter learning loop, marketplace-discovered parallel flagging, image-coverage burn-down to 100% (weekly retries for obscure parallels).</p>
               <ul>
-                <li>Scorecard: every &gt;50% rainbow fully illustrated — owned photos + missing references, zero placeholders</li>
+                <li>Scorecard: every &gt;50% rainbow fully illustrated — owned + missing, zero placeholders, zero photos taken by you</li>
               </ul>
             </div>
           </div>
