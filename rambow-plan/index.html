@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rambow · Aaron Donald Rainbow App · Plan v0.1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800;900&family=Outfit:wght@100..900&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        /* LA Rams brand palette — Rams Royal, Sol, Bone (2020 identity) */
+        --royal: #003594;
+        --royal-deep: #00246b;
+        --navy: #001d52;
+        --navy-deep: #001238;
+        --ink: #10214b;
+        --sol: #ffa300;
+        --sol-deep: #e08900;
+        --white: #ffffff;
+        --bone: #ece5d3;
+        --bone-light: #f6f2e8;
+        --canvas: #f4f2ec;
+        --panel: #eae7de;
+        --line: #ddd8cb;
+        --muted: #5c6478;
+        --dim: #979caa;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: "Outfit", Arial, sans-serif;
+        font-weight: 400;
+        line-height: 1.47;
+        -webkit-font-smoothing: antialiased;
+      }
+      h1, h2, h3, h4, .fontd { font-family: "Archivo", "Outfit", Arial, sans-serif; }
+
+      /* ---------- Shell ---------- */
+      .ds-shell { display: flex; align-items: flex-start; }
+      .ds-side {
+        position: sticky; top: 0; height: 100vh; flex: none;
+        width: 280px; background: var(--navy); color: #fff;
+        overflow-y: auto; padding: 28px 0 40px;
+      }
+      .ds-side-head { padding: 0 26px 22px; }
+      .ds-logo {
+        font-family: "Archivo"; font-weight: 900; font-size: 30px; letter-spacing: -0.01em;
+        text-transform: uppercase; line-height: 1;
+        background: linear-gradient(100deg, #4d7fd6 0%, #86a9ec 38%, var(--sol) 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+        margin-bottom: 14px;
+      }
+      .ds-side-title {
+        font-size: 11px; font-weight: 700; letter-spacing: 0.22em;
+        text-transform: uppercase; color: var(--sol);
+      }
+      .ds-side-sub { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 5px; }
+      .ds-nav { padding: 0 16px; }
+      .ds-side-group {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.18em;
+        text-transform: uppercase; color: rgba(255,255,255,0.4);
+        padding: 20px 10px 7px;
+      }
+      .ds-side-link {
+        display: block; padding: 6px 10px; font-size: 13px;
+        color: rgba(255,255,255,0.78); text-decoration: none;
+        border-left: 2px solid transparent; transition: color .15s, border-color .15s;
+      }
+      .ds-side-link:hover { color: #fff; border-color: var(--sol); }
+      .ds-side-link .n { color: var(--sol); font-weight: 700; font-size: 10.5px; margin-right: 7px; letter-spacing: 0.06em; }
+
+      /* ---------- Main ---------- */
+      .ds-main { flex: 1; min-width: 0; max-width: 1040px; margin: 0 auto; padding: 0 56px; }
+      section { padding: 64px 0; border-bottom: 1px solid var(--line); scroll-margin-top: 24px; }
+      section:last-of-type { border-bottom: none; }
+
+      .eyebrow {
+        font-size: 11px; font-weight: 700; letter-spacing: 0.22em;
+        text-transform: uppercase; color: var(--royal); margin: 0 0 14px;
+      }
+      .eyebrow .idx { color: var(--sol-deep); margin-right: 8px; }
+      h2.headline {
+        font-size: 33px; font-weight: 900; letter-spacing: -0.01em;
+        line-height: 1.05; margin: 0 0 10px; color: var(--royal-deep); text-transform: uppercase;
+      }
+      h2.headline em { font-style: normal; font-weight: 900; color: var(--sol-deep); }
+      .lead { font-size: 15px; color: var(--muted); max-width: 66ch; margin: 0 0 30px; line-height: 1.55; }
+      .lead b { color: var(--ink); font-weight: 600; }
+      .lead a, .cap a, .card p a, .uc-flow a { color: var(--royal); font-weight: 600; text-decoration: underline; text-decoration-color: rgba(0,53,148,0.35); }
+      h3.sub { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; margin: 26px 0 6px; color: var(--royal-deep); text-transform: uppercase; }
+      h3.sub .tag { font-weight: 600; color: var(--sol-deep); letter-spacing: 0.08em; font-size: 10.5px; margin-left: 10px; }
+      .cap { font-size: 12px; color: var(--muted); margin: 0 0 6px; line-height: 1.5; max-width: 76ch; }
+
+      /* ---------- Spark rule ---------- */
+      .spark-rule { display: flex; align-items: center; gap: 10px; margin: 0 0 24px; }
+      .spark-rule .srbar { display: block; height: 4px; width: 46px; background: linear-gradient(90deg, var(--royal), var(--sol)); }
+      .spark-rule .dot { display: block; width: 8px; height: 8px; border-radius: 50%; }
+      .spark-rule .dot.r { background: var(--royal); }
+      .spark-rule .dot.s { background: var(--sol); }
+      .spark-rule .dot.b { background: var(--bone); border: 1px solid var(--line); }
+
+      /* ---------- Hero ---------- */
+      .hero { padding: 78px 0 64px; border-bottom: 1px solid var(--line); }
+      .hero h1 {
+        font-size: 56px; font-weight: 900; letter-spacing: -0.015em; line-height: 1.0;
+        margin: 0 0 20px; color: var(--royal-deep); text-transform: uppercase;
+      }
+      .hero h1 em { font-style: normal; font-weight: 900; color: var(--sol-deep); }
+      .hero .lead { font-size: 17px; max-width: 64ch; }
+      .hero-meta { display: flex; gap: 40px; margin-top: 34px; flex-wrap: wrap; }
+      .hero-meta div { font-size: 13px; color: var(--muted); }
+      .hero-meta b { display: block; color: var(--ink); font-weight: 700; font-size: 13px; letter-spacing: 0.02em; }
+      .hero-band {
+        margin-top: 40px; border-radius: 12px; overflow: hidden;
+        background: linear-gradient(105deg, var(--navy-deep) 0%, var(--royal) 55%, #3b6cc4 78%, var(--sol) 100%);
+        color: #fff; padding: 30px 34px; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap;
+      }
+      .hero-band .hb-title { font-family: "Archivo"; font-weight: 900; text-transform: uppercase; font-size: 24px; line-height: 1.05; letter-spacing: -0.01em; }
+      .hero-band .hb-title span { color: var(--sol); }
+      .hero-band .hb-note { font-size: 12.5px; color: rgba(255,255,255,0.85); max-width: 46ch; line-height: 1.5; }
+      .hero-band .hb-nums { display: flex; gap: 28px; }
+      .hero-band .hb-nums div { text-align: right; }
+      .hero-band .hb-nums b { display: block; font-family: "Archivo"; font-weight: 900; font-size: 26px; color: var(--sol); }
+      .hero-band .hb-nums span { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.7); }
+
+      /* ---------- Grids & cards ---------- */
+      .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+      .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+      .card { background: #fff; border: 1px solid var(--line); padding: 22px 24px; border-radius: 10px; }
+      .card h4 { font-size: 17px; font-weight: 800; margin: 0 0 8px; color: var(--royal-deep); letter-spacing: -0.01em; text-transform: uppercase; }
+      .card p { font-size: 13.5px; color: var(--muted); margin: 0; line-height: 1.55; }
+      .card.panel { background: var(--panel); border-color: transparent; }
+      .card.navy { background: var(--navy); border-color: transparent; }
+      .card.navy h4 { color: var(--sol); }
+      .card.navy p { color: rgba(255,255,255,0.75); }
+
+      .note-banner { background: var(--bone-light); border: 1px solid var(--bone); border-radius: 10px; padding: 14px 18px; font-size: 12.5px; color: #6e6444; line-height: 1.55; margin-top: 30px; }
+      .note-banner b { color: #55491f; }
+
+      /* ---------- Tables ---------- */
+      .gtable { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+      .gtable th { text-align: left; font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--royal); font-weight: 700; padding: 12px 14px; border-bottom: 1px solid var(--line); background: var(--bone-light); }
+      .gtable td { font-size: 13px; padding: 12px 14px; border-bottom: 1px solid var(--line); color: var(--muted); vertical-align: top; line-height: 1.5; }
+      .gtable tr:last-child td { border-bottom: none; }
+      .gtable td:first-child { color: var(--ink); font-weight: 600; white-space: nowrap; }
+      .gtable td.num { text-align: right; font-variant-numeric: tabular-nums; }
+      .pill { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+      .pill.royal { background: var(--royal); color: #fff; }
+      .pill.sol { background: var(--sol); color: var(--navy-deep); }
+      .pill.bone { background: var(--bone); color: #6e6444; }
+      .pill.ghost { background: var(--panel); color: var(--muted); }
+
+      .meter { height: 8px; border-radius: 999px; background: var(--panel); overflow: hidden; min-width: 90px; }
+      .meter i { display: block; height: 100%; background: linear-gradient(90deg, var(--royal), var(--sol)); }
+
+      /* ---------- Use cases ---------- */
+      .uc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .uc { border: 1px solid var(--line); background: #fff; padding: 15px 17px; border-radius: 10px; }
+      .uc-id { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sol-deep); }
+      .uc-t { font-size: 13.5px; font-weight: 700; margin-top: 4px; color: var(--ink); }
+      .uc-flow { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.55; }
+      .uc-done { font-size: 11.5px; color: var(--royal); margin-top: 8px; font-weight: 600; line-height: 1.45; }
+      .uc-done::before { content: "Done when — "; color: var(--sol-deep); font-weight: 700; letter-spacing: 0.04em; }
+
+      /* ---------- Flow strips ---------- */
+      .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 16px 18px; background: #fff; border: 1px solid var(--line); border-radius: 10px; margin: 10px 0 4px; }
+      .fstep { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; padding: 8px 13px; border-radius: 999px; line-height: 1.25; }
+      .fstep .fdot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+      .fstep.app { background: var(--navy); color: #fff; }
+      .fstep.app .fdot { background: var(--sol); }
+      .fstep.you { background: #fff; border: 1px solid var(--sol-deep); color: var(--sol-deep); }
+      .fstep.you .fdot { background: var(--sol); }
+      .fstep.ext { background: var(--bone); color: #6e6444; }
+      .fstep.ext .fdot { background: var(--royal); }
+      .fstep.out { background: var(--panel); color: var(--muted); }
+      .fstep.out .fdot { background: var(--dim); }
+      .farrow { color: var(--dim); font-size: 13px; font-weight: 700; }
+      .flow-key { display: flex; gap: 22px; flex-wrap: wrap; margin: 14px 0 26px; }
+      .flow-key div { font-size: 11px; color: var(--muted); display: inline-flex; align-items: center; gap: 7px; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
+      .flow-key i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+      /* ---------- Wireframe kit ---------- */
+      .wf { position: relative; border: 1px solid var(--line); background: var(--bone-light); margin: 14px 0 10px; border-radius: 12px; overflow: hidden; }
+      .wf-grid { display: grid; grid-template-columns: 186px 1fr; }
+      .wf-side { background: var(--navy); padding: 14px 12px; display: flex; flex-direction: column; gap: 9px; }
+      .wf-top { height: 44px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: #fff; }
+      .wf-main { padding: 16px; display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 0; }
+      .bar { display: block; height: 8px; background: var(--line); border-radius: 3px; }
+      .bar.dark { background: var(--dim); }
+      .bar.accent { background: var(--sol); }
+      .bar.royal { background: var(--royal); }
+      .bar.w { background: rgba(255,255,255,0.22); }
+      .bar.wd { background: rgba(255,255,255,0.6); }
+      .wf-card { border: 1px solid var(--line); background: #fff; padding: 12px; display: flex; flex-direction: column; gap: 8px; border-radius: 8px; min-width: 0; }
+      .wf-card.tint { background: var(--panel); border-color: transparent; }
+      .wf-chip { display: flex; gap: 9px; align-items: center; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.06); padding: 9px 10px; border-radius: 8px; }
+      .wf-dot { width: 10px; height: 10px; background: var(--sol); flex: none; border-radius: 50%; }
+      .wf-row { display: grid; gap: 10px; }
+      .wf-row.c3 { grid-template-columns: repeat(3, 1fr); }
+      .wf-row.c4 { grid-template-columns: repeat(4, 1fr); }
+      .wf-row.c6 { grid-template-columns: repeat(6, 1fr); }
+      .swatch { aspect-ratio: 3/4; border-radius: 6px; border: 1px solid var(--line); display: flex; align-items: flex-end; padding: 5px; }
+      .swatch .bar { width: 70%; height: 5px; }
+      .swatch.have { background: linear-gradient(160deg, #dfe8fa, #b8cdf3); border-color: #9db8e8; }
+      .swatch.miss { background: repeating-linear-gradient(45deg, #f2efe6, #f2efe6 5px, #e9e4d5 5px, #e9e4d5 10px); }
+      .swatch.grail { background: linear-gradient(160deg, #ffe2ad, var(--sol)); border-color: var(--sol-deep); }
+      .wf-note { font-size: 11px; color: var(--muted); padding: 0 2px 4px; }
+
+      /* ---------- Glossary ---------- */
+      .gl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
+      .gl { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 11px 14px; }
+      .gl b { font-size: 12.5px; color: var(--royal-deep); text-transform: uppercase; letter-spacing: 0.05em; font-family: "Archivo"; font-weight: 800; }
+      .gl span { display: block; font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+
+      /* ---------- Phases ---------- */
+      .phase { display: grid; grid-template-columns: 120px 1fr; gap: 18px; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin-bottom: 12px; }
+      .phase .pnum { font-family: "Archivo"; font-weight: 900; font-size: 15px; text-transform: uppercase; color: var(--sol-deep); line-height: 1.3; }
+      .phase .pnum small { display: block; font-family: "Outfit"; font-weight: 600; font-size: 10.5px; letter-spacing: 0.1em; color: var(--dim); margin-top: 3px; }
+      .phase h4 { margin: 0 0 6px; font-size: 15px; font-weight: 800; color: var(--royal-deep); text-transform: uppercase; }
+      .phase p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.55; }
+      .phase ul { margin: 8px 0 0; padding-left: 18px; }
+      .phase li { font-size: 12.5px; color: var(--muted); padding: 2px 0; }
+
+      footer { padding: 40px 0 60px; font-size: 12px; color: var(--dim); }
+      footer b { color: var(--muted); }
+
+      @media (max-width: 900px) {
+        .ds-side { display: none; }
+        .ds-main { padding: 0 22px; }
+        .grid-2, .grid-3, .uc-grid, .gl-grid { grid-template-columns: 1fr; }
+        .hero h1 { font-size: 38px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ds-shell">
+      <aside class="ds-side">
+        <div class="ds-side-head">
+          <div class="ds-logo">Rambow</div>
+          <div class="ds-side-title">Rainbow Chase App</div>
+          <div class="ds-side-sub">Plan v0.1 · July 2026</div>
+        </div>
+        <nav class="ds-nav">
+          <div class="ds-side-group">The chase</div>
+          <a class="ds-side-link" href="#collection"><span class="n">01</span>The collection today</a>
+          <a class="ds-side-link" href="#vision"><span class="n">02</span>What Rambow does</a>
+          <a class="ds-side-link" href="#engine"><span class="n">03</span>The rainbow engine</a>
+          <div class="ds-side-group">Find &amp; buy</div>
+          <a class="ds-side-link" href="#hunt"><span class="n">04</span>The hunt</a>
+          <a class="ds-side-link" href="#imagery"><span class="n">05</span>Card imagery</a>
+          <div class="ds-side-group">The product</div>
+          <a class="ds-side-link" href="#screens"><span class="n">06</span>Every screen</a>
+          <a class="ds-side-link" href="#wireframes"><span class="n">07</span>Wireframes</a>
+          <a class="ds-side-link" href="#moments"><span class="n">08</span>Twelve moments</a>
+          <a class="ds-side-link" href="#glossary"><span class="n">09</span>Every term</a>
+          <div class="ds-side-group">Build</div>
+          <a class="ds-side-link" href="#stack"><span class="n">10</span>Stack &amp; seed</a>
+          <a class="ds-side-link" href="#phases"><span class="n">11</span>Phases &amp; scorecard</a>
+        </nav>
+      </aside>
+
+      <main class="ds-main">
+        <!-- ================= HERO ================= -->
+        <div class="hero">
+          <div class="spark-rule"><span class="srbar"></span><span class="dot r"></span><span class="dot s"></span><span class="dot b"></span></div>
+          <h1>Every parallel.<br /><em>One chase.</em></h1>
+          <p class="lead">
+            <b>Rambow</b> is a personal collection app for one job: completing card rainbows.
+            It knows every card you own, knows every parallel that exists, shows the gap between the two —
+            and then hunts eBay for the missing pieces so you can close them. Seeded from
+            <b>MyFootballCards.xlsx</b>, styled after the LA&nbsp;Rams, built around the two featured chases:
+            <b>Aaron&nbsp;Donald&nbsp;#99</b> and <b>Marshall&nbsp;Faulk&nbsp;#28</b>.
+          </p>
+          <div class="hero-meta">
+            <div><b>Owner</b>Jarrod — sole user</div>
+            <div><b>Seed data</b>MyFootballCards.xlsx (Rams + Faulk sheets)</div>
+            <div><b>Buy-side</b>Watchlist alerts + in-app live search</div>
+            <div><b>Out of scope</b>Selling features, auto-purchase</div>
+          </div>
+          <div class="hero-band">
+            <div>
+              <div class="hb-title">The collection,<br /><span>the day we seed it</span></div>
+              <div class="hb-note">Every number below comes straight from the spreadsheet — this is the starting line, not an estimate.</div>
+            </div>
+            <div class="hb-nums">
+              <div><b>593</b><span>cards</span></div>
+              <div><b>9</b><span>players</span></div>
+              <div><b>14</b><span>one-of-ones</span></div>
+              <div><b>76</b><span>graded</span></div>
+              <div><b>$18.5k</b><span>invested</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= 01 COLLECTION ================= -->
+        <section id="collection">
+          <p class="eyebrow"><span class="idx">01</span>The chase</p>
+          <h2 class="headline">The collection <em>today</em></h2>
+          <p class="lead">
+            The spreadsheet's <b>Rams</b> and <b>Faulk</b> sheets become the inventory on day one — all 593 rows,
+            every player, every card. Each row already carries the fields the rainbow engine needs:
+            year, product, card #, parallel name, serial number, print run, grade, and purchase price.
+          </p>
+          <table class="gtable">
+            <tr><th>Player</th><th>Cards</th><th>Role in Rambow</th></tr>
+            <tr><td>Aaron Donald</td><td class="num">286</td><td><span class="pill sol">Featured chase</span> &nbsp;Hero dashboard, deepest rainbows (2021 Select #120 · 2020 Select #133 · 2022 Prizm #164)</td></tr>
+            <tr><td>Cooper Kupp</td><td class="num">106</td><td>Tracked — owns the single deepest rainbow in the collection (2022 Select #8, 26 parallels)</td></tr>
+            <tr><td>Marshall Faulk</td><td class="num">82</td><td><span class="pill sol">Featured chase</span> &nbsp;Hero dashboard, vintage-to-modern span (2013–2022)</td></tr>
+            <tr><td>Matthew Stafford</td><td class="num">75</td><td>Tracked — strong 2021/2022 Prizm &amp; Select runs</td></tr>
+            <tr><td>Kurt Warner</td><td class="num">20</td><td>Tracked</td></tr>
+            <tr><td>Terrell Davis</td><td class="num">16</td><td>Tracked</td></tr>
+            <tr><td>Isaac Bruce / Torry Holt / Eric Dickerson</td><td class="num">8</td><td>Tracked</td></tr>
+          </table>
+          <div class="note-banner">
+            <b>Left out of the seed:</b> the small "Sheet1" tab (Kuji / Whale / Skellys / Big Labs tallies) isn't card inventory and is skipped.
+            The comp/asking/offer notes buried in side columns of the Rams sheet are imported as free-text notes on each card, but no sell
+            features are built — per your call, Rambow is purely about completing rainbows.
+          </div>
+        </section>
+
+        <!-- ================= 02 VISION ================= -->
+        <section id="vision">
+          <p class="eyebrow"><span class="idx">02</span>The chase</p>
+          <h2 class="headline">Three jobs. <em>Nothing else.</em></h2>
+          <p class="lead">Rambow does exactly three things, in priority order. Everything in this plan traces to one of them.</p>
+          <div class="grid-3">
+            <div class="card navy">
+              <h4>Know what you own</h4>
+              <p>Every card from the spreadsheet, browsable and searchable, each with a photo. Serial numbers, print runs, and grades preserved exactly.</p>
+            </div>
+            <div class="card navy">
+              <h4>See every rainbow</h4>
+              <p>For each card-set (player + year + product + card #), a completion meter: parallels owned vs. parallels that exist, with the missing ones named.</p>
+            </div>
+            <div class="card navy">
+              <h4>Close the gaps</h4>
+              <p>Live eBay search on any missing parallel, plus a watchlist that pings your phone when a listing appears under your target price.</p>
+            </div>
+          </div>
+          <h3 class="sub">Featured chases <span class="tag">AD 99 · MF 28</span></h3>
+          <p class="cap">
+            Aaron Donald and Marshall Faulk each get a hero page pinned to the top of the app. All nine players get the same
+            rainbow mechanics — featured just means these two lead the dashboard and get first claim on checklist research and imagery.
+          </p>
+        </section>
+
+        <!-- ================= 03 ENGINE ================= -->
+        <section id="engine">
+          <p class="eyebrow"><span class="idx">03</span>The chase</p>
+          <h2 class="headline">The rainbow <em>engine</em></h2>
+          <p class="lead">
+            A rainbow is only measurable against a <b>master checklist</b> — the full list of parallels that exist for a card.
+            Your inventory says what you have; the checklist says what "done" means. Rambow seeds checklists from published
+            sources: <a href="https://www.cardboardconnection.com/">Cardboard Connection</a>,
+            <a href="https://www.beckett.com/news/">Beckett</a>, and
+            <a href="https://www.paniniamerica.net/checklists">Panini's official checklists</a>, verified per product and stored
+            per card-set with print runs. eBay listing discovery fills gaps over time (a parallel showing up in listings that
+            isn't on the checklist gets flagged for review).
+          </p>
+          <h3 class="sub">Completion math</h3>
+          <p class="cap">
+            Completion = distinct parallels owned ÷ parallels on the checklist. Each parallel is tiered —
+            <span class="pill ghost">base</span> <span class="pill royal">numbered</span> <span class="pill sol">short print /25 and under</span>
+            <span class="pill bone">1/1</span> — so a rainbow can be "complete except 1/1s," which is its own badge
+            (chasing a 1/1 someone else owns is a different sport).
+          </p>
+          <h3 class="sub">The 50% rule <span class="tag">Your call, encoded</span></h3>
+          <p class="cap">
+            Any rainbow past <b>50% completion</b> is promoted to an <b>active chase</b>: its missing parallels get reference
+            images pulled from eBay, appear on the dashboard's "closest to done" rail, and are eligible for watchlist alerts.
+            Below 50%, a rainbow is just a tally — no image fetching, no noise.
+          </p>
+          <h3 class="sub">The starting grid <span class="tag">Real counts · est. totals</span></h3>
+          <p class="cap">Owned counts are exact (from the spreadsheet). Checklist totals are estimates until Phase 2 verifies each product — expect these percentages to move.</p>
+          <table class="gtable">
+            <tr><th>Rainbow</th><th>Owned</th><th>Est. checklist</th><th>Est. completion</th><th></th></tr>
+            <tr><td>Cooper Kupp · 2022 Select #8</td><td class="num">26</td><td class="num">~34</td><td class="num">~76%</td><td><div class="meter"><i style="width:76%"></i></div></td></tr>
+            <tr><td>Aaron Donald · 2021 Select #120</td><td class="num">25</td><td class="num">~32</td><td class="num">~78%</td><td><div class="meter"><i style="width:78%"></i></div></td></tr>
+            <tr><td>Aaron Donald · 2020 Select #133</td><td class="num">21</td><td class="num">~30</td><td class="num">~70%</td><td><div class="meter"><i style="width:70%"></i></div></td></tr>
+            <tr><td>Aaron Donald · 2019 Select #44</td><td class="num">14</td><td class="num">~28</td><td class="num">~50%</td><td><div class="meter"><i style="width:50%"></i></div></td></tr>
+            <tr><td>Marshall Faulk · 2014 Prizm #48</td><td class="num">10</td><td class="num">~20</td><td class="num">~50%</td><td><div class="meter"><i style="width:50%"></i></div></td></tr>
+            <tr><td>Aaron Donald · 2021 Prizm #69</td><td class="num">15</td><td class="num">~44</td><td class="num">~34%</td><td><div class="meter"><i style="width:34%"></i></div></td></tr>
+            <tr><td>Aaron Donald · 2022 Prizm #164</td><td class="num">15</td><td class="num">~48</td><td class="num">~31%</td><td><div class="meter"><i style="width:31%"></i></div></td></tr>
+            <tr><td>Matthew Stafford · 2021 Select #20</td><td class="num">13</td><td class="num">~32</td><td class="num">~41%</td><td><div class="meter"><i style="width:41%"></i></div></td></tr>
+            <tr><td>Aaron Donald · 2022 Select #243</td><td class="num">12</td><td class="num">~34</td><td class="num">~35%</td><td><div class="meter"><i style="width:35%"></i></div></td></tr>
+            <tr><td>Aaron Donald · 2023 Prizm #162</td><td class="num">14</td><td class="num">~50</td><td class="num">~28%</td><td><div class="meter"><i style="width:28%"></i></div></td></tr>
+          </table>
+        </section>
+
+        <!-- ================= 04 HUNT ================= -->
+        <section id="hunt">
+          <p class="eyebrow"><span class="idx">04</span>Find &amp; buy</p>
+          <h2 class="headline">The hunt. <em>You pull the trigger.</em></h2>
+          <p class="lead">
+            Both buy-side modes you picked, powered by the <a href="https://developer.ebay.com/api-docs/buy/browse/overview.html">eBay Browse API</a> —
+            the same integration already running in your morning report (JBCardSearch keyset), so credentials and query
+            patterns are proven. Hard guardrail: <b>Rambow never buys anything.</b> Every path ends in a deep link to the
+            eBay listing where you tap Buy yourself.
+          </p>
+
+          <h3 class="sub">Mode 1 · Watchlist + price alerts</h3>
+          <div class="flow">
+            <span class="fstep you"><span class="fdot"></span>Set target price on a missing parallel</span>
+            <span class="farrow">→</span>
+            <span class="fstep app"><span class="fdot"></span>Nightly scan queries eBay per watch</span>
+            <span class="farrow">→</span>
+            <span class="fstep app"><span class="fdot"></span>Match found under target</span>
+            <span class="farrow">→</span>
+            <span class="fstep out"><span class="fdot"></span>ntfy push to your phone</span>
+            <span class="farrow">→</span>
+            <span class="fstep ext"><span class="fdot"></span>Tap → eBay listing → you buy</span>
+          </div>
+          <p class="cap" style="margin-top:10px">
+            Same <a href="https://ntfy.sh">ntfy</a> channel pattern as the morning report. Each watch stores the exact query
+            (player, year, product, card #, parallel, serial hints like "/25"), a target price, and a raw/graded preference.
+            Alerts include title, price, condition, thumbnail, and the listing link.
+          </p>
+
+          <h3 class="sub">Mode 2 · In-app live search</h3>
+          <div class="flow">
+            <span class="fstep you"><span class="fdot"></span>Tap any missing parallel</span>
+            <span class="farrow">→</span>
+            <span class="fstep app"><span class="fdot"></span>Live eBay query, pre-built &amp; tuned</span>
+            <span class="farrow">→</span>
+            <span class="fstep app"><span class="fdot"></span>Listings ranked: exact match first, price ascending</span>
+            <span class="farrow">→</span>
+            <span class="fstep ext"><span class="fdot"></span>Open listing on eBay</span>
+          </div>
+          <div class="flow-key">
+            <div><i style="background:var(--sol)"></i>You</div>
+            <div><i style="background:var(--navy)"></i>Rambow</div>
+            <div><i style="background:var(--royal)"></i>eBay</div>
+            <div><i style="background:var(--dim)"></i>Notification</div>
+          </div>
+          <div class="note-banner">
+            <b>Query quality is the whole game.</b> Card-title matching is fuzzy ("Tie-Dye /25" vs "Tie Dye 25/25" vs "SSP tie dye").
+            Each parallel gets a curated query template plus negative keywords (lot, reprint, custom, digital), refined as bad matches
+            appear. A "not a match" button on any result feeds the filter.
+          </div>
+        </section>
+
+        <!-- ================= 05 IMAGERY ================= -->
+        <section id="imagery">
+          <p class="eyebrow"><span class="idx">05</span>Find &amp; buy</p>
+          <h2 class="headline">Every card <em>gets a face</em></h2>
+          <p class="lead">
+            A rainbow page with 26 gray placeholders isn't a rainbow. Two image pipelines fix that — one for what you own,
+            one for what you're missing.
+          </p>
+          <div class="grid-2">
+            <div class="card">
+              <h4>Owned cards — your photos</h4>
+              <p>
+                A phone-friendly capture flow: open Rambow on your phone, tap a card, shoot front (back optional) —
+                stored in Supabase Storage, auto-cropped and linked. A "needs photo" queue works through the backlog
+                worst-first (featured chases → graded slabs → everything else). For slabbed cards, the cert number
+                on the label doubles as verification. Until you shoot a card, an eBay stock image of the same
+                parallel stands in, clearly badged as a stand-in.
+              </p>
+            </div>
+            <div class="card">
+              <h4>Missing cards — reference images</h4>
+              <p>
+                For every <b>active chase</b> (the &gt;50% rainbows, per the 50% rule), missing parallels get reference
+                images pulled automatically from eBay listing photos via the Browse API. So the rainbow grid shows the
+                actual Tie-Dye you're hunting, not a question mark. Below 50%, no fetching — keeps API calls and
+                storage focused on chases that are real.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= 06 SCREENS ================= -->
+        <section id="screens">
+          <p class="eyebrow"><span class="idx">06</span>The product</p>
+          <h2 class="headline">Every screen, <em>one table</em></h2>
+          <p class="lead">Seven screens. No admin console, no roles, no settings sprawl — it's your app.</p>
+          <table class="gtable">
+            <tr><th>#</th><th>Screen</th><th>What it shows</th><th>Primary action</th></tr>
+            <tr><td>1</td><td><b>Rainbow Room</b> (dashboard)</td><td>Featured chases (AD · Faulk) up top; "closest to done" rail of active chases with meters; recent alerts</td><td>Jump into a rainbow</td></tr>
+            <tr><td>2</td><td>Rainbow detail</td><td>The full parallel grid for one card-set — owned (photo), missing (reference image), tiers, print runs, completion meter</td><td>Tap a missing card → hunt</td></tr>
+            <tr><td>3</td><td>Player page</td><td>All of a player's card-sets ranked by completion; player stats (cards, spend, 1/1s)</td><td>Open a rainbow</td></tr>
+            <tr><td>4</td><td>Card detail</td><td>One card: photos, serial, print run, grade, purchase price, notes from the spreadsheet</td><td>Add/replace photo</td></tr>
+            <tr><td>5</td><td>The Hunt</td><td>Live eBay results for a missing parallel, exact-match ranked, price ascending</td><td>Open listing on eBay · Add to watchlist</td></tr>
+            <tr><td>6</td><td>Watchlist</td><td>Every watch with target price, last scan, latest matches, alert history</td><td>Adjust target · pause</td></tr>
+            <tr><td>7</td><td>Import &amp; checklists</td><td>Spreadsheet re-import (diff preview), checklist editor per card-set, flagged eBay-discovered parallels</td><td>Approve checklist changes</td></tr>
+          </table>
+          <p class="cap" style="margin-top:12px">
+            Every hobby term in the UI (parallel, print run, slab, comp…) gets a tooltip — same glossary-tooltip convention
+            as your other apps, backed by the glossary in section 09.
+          </p>
+        </section>
+
+        <!-- ================= 07 WIREFRAMES ================= -->
+        <section id="wireframes">
+          <p class="eyebrow"><span class="idx">07</span>The product</p>
+          <h2 class="headline">The screens, <em>sketched</em></h2>
+          <p class="lead">Layout intent only — Rams royal navy chrome, Sol accents, Bone canvas. Blue tiles = owned, striped = missing, gold = the grail.</p>
+
+          <h3 class="sub">1 · Rainbow Room <span class="tag">Dashboard</span></h3>
+          <div class="wf"><div class="wf-grid">
+            <div class="wf-side">
+              <div class="wf-chip"><span class="wf-dot"></span><span class="bar wd" style="width:70%"></span></div>
+              <div class="bar w" style="width:80%"></div>
+              <div class="bar w" style="width:60%"></div>
+              <div class="bar w" style="width:70%"></div>
+              <div class="bar w" style="width:50%"></div>
+            </div>
+            <div>
+              <div class="wf-top"><span class="bar dark" style="width:120px"></span><span class="bar accent" style="width:60px"></span></div>
+              <div class="wf-main">
+                <div class="wf-note">Featured chases — AD 99 &amp; MF 28, completion meters, next-best-buy chip</div>
+                <div class="wf-row" style="grid-template-columns:1fr 1fr">
+                  <div class="wf-card"><span class="bar royal" style="width:50%"></span><div class="meter"><i style="width:78%"></i></div><span class="bar" style="width:80%"></span></div>
+                  <div class="wf-card"><span class="bar royal" style="width:45%"></span><div class="meter"><i style="width:50%"></i></div><span class="bar" style="width:70%"></span></div>
+                </div>
+                <div class="wf-note">Closest to done — active chases (&gt;50%)</div>
+                <div class="wf-row c4">
+                  <div class="wf-card tint"><span class="bar dark" style="width:70%"></span><div class="meter"><i style="width:76%"></i></div></div>
+                  <div class="wf-card tint"><span class="bar dark" style="width:60%"></span><div class="meter"><i style="width:70%"></i></div></div>
+                  <div class="wf-card tint"><span class="bar dark" style="width:65%"></span><div class="meter"><i style="width:50%"></i></div></div>
+                  <div class="wf-card tint"><span class="bar dark" style="width:55%"></span><div class="meter"><i style="width:50%"></i></div></div>
+                </div>
+              </div>
+            </div>
+          </div></div>
+
+          <h3 class="sub">2 · Rainbow detail <span class="tag">The parallel grid</span></h3>
+          <div class="wf"><div class="wf-grid">
+            <div class="wf-side">
+              <div class="wf-chip"><span class="wf-dot"></span><span class="bar wd" style="width:70%"></span></div>
+              <div class="bar w" style="width:80%"></div>
+              <div class="bar w" style="width:60%"></div>
+            </div>
+            <div>
+              <div class="wf-top"><span class="bar dark" style="width:180px"></span><span class="bar accent" style="width:90px"></span></div>
+              <div class="wf-main">
+                <div class="wf-note">2021 Select #120 · Aaron Donald — 25 of ~32 · owned / missing / grail (1/1)</div>
+                <div class="wf-row c6">
+                  <div class="swatch have"><span class="bar royal"></span></div>
+                  <div class="swatch have"><span class="bar royal"></span></div>
+                  <div class="swatch miss"><span class="bar"></span></div>
+                  <div class="swatch have"><span class="bar royal"></span></div>
+                  <div class="swatch miss"><span class="bar"></span></div>
+                  <div class="swatch grail"><span class="bar dark"></span></div>
+                </div>
+                <div class="wf-row c6">
+                  <div class="swatch have"><span class="bar royal"></span></div>
+                  <div class="swatch miss"><span class="bar"></span></div>
+                  <div class="swatch have"><span class="bar royal"></span></div>
+                  <div class="swatch have"><span class="bar royal"></span></div>
+                  <div class="swatch have"><span class="bar royal"></span></div>
+                  <div class="swatch miss"><span class="bar"></span></div>
+                </div>
+              </div>
+            </div>
+          </div></div>
+
+          <h3 class="sub">3 · The Hunt <span class="tag">Live eBay search</span></h3>
+          <div class="wf"><div class="wf-grid">
+            <div class="wf-side">
+              <div class="wf-chip"><span class="wf-dot"></span><span class="bar wd" style="width:70%"></span></div>
+              <div class="bar w" style="width:75%"></div>
+              <div class="bar w" style="width:55%"></div>
+            </div>
+            <div>
+              <div class="wf-top"><span class="bar dark" style="width:200px"></span><span class="bar accent" style="width:70px"></span></div>
+              <div class="wf-main">
+                <div class="wf-note">Missing: Tie-Dye Prizm /25 — live listings, exact-match first, price ascending</div>
+                <div class="wf-card"><div class="wf-row" style="grid-template-columns:52px 1fr 90px"><div class="swatch have" style="aspect-ratio:3/4"></div><div><span class="bar dark" style="width:85%"></span><br /><span class="bar" style="width:55%"></span></div><span class="bar accent" style="width:70px"></span></div></div>
+                <div class="wf-card"><div class="wf-row" style="grid-template-columns:52px 1fr 90px"><div class="swatch have" style="aspect-ratio:3/4"></div><div><span class="bar dark" style="width:75%"></span><br /><span class="bar" style="width:45%"></span></div><span class="bar accent" style="width:60px"></span></div></div>
+                <div class="wf-card tint"><span class="bar" style="width:40%"></span><span class="bar accent" style="width:130px"></span><div class="wf-note" style="padding:0">Add to watchlist — target $, raw/graded, alert on match</div></div>
+              </div>
+            </div>
+          </div></div>
+        </section>
+
+        <!-- ================= 08 MOMENTS ================= -->
+        <section id="moments">
+          <p class="eyebrow"><span class="idx">08</span>The product</p>
+          <h2 class="headline">Twelve moments <em>that matter</em></h2>
+          <p class="lead">If these twelve work, the app works.</p>
+          <div class="uc-grid">
+            <div class="uc"><div class="uc-id">UC-01 · Seed</div><div class="uc-t">Import the spreadsheet</div><div class="uc-flow">Parser reads Rams + Faulk sheets, normalizes products (Prizm vs Panini Prizm), maps side-column notes.</div><div class="uc-done">593 cards visible in the app, spot-checks match the sheet row-for-row.</div></div>
+            <div class="uc"><div class="uc-id">UC-02 · Seed</div><div class="uc-t">Re-import without damage</div><div class="uc-flow">You update the xlsx; re-import shows a diff preview (new / changed / removed) before applying.</div><div class="uc-done">A re-import never silently deletes a card or a photo link.</div></div>
+            <div class="uc"><div class="uc-id">UC-03 · Rainbow</div><div class="uc-t">See a rainbow honestly</div><div class="uc-flow">Open 2021 Select #120 — grid shows 25 owned with photos, ~7 missing with names, tiers, print runs.</div><div class="uc-done">Completion % matches a manual count against the verified checklist.</div></div>
+            <div class="uc"><div class="uc-id">UC-04 · Rainbow</div><div class="uc-t">Cross the 50% line</div><div class="uc-flow">A pickup pushes a rainbow past 50% — it's promoted to active chase automatically.</div><div class="uc-done">Missing-card reference images appear within a day, no manual step.</div></div>
+            <div class="uc"><div class="uc-id">UC-05 · Hunt</div><div class="uc-t">Hunt a missing parallel</div><div class="uc-flow">Tap the missing Tie-Dye → live eBay results, junk filtered, cheapest exact match on top.</div><div class="uc-done">Top result is genuinely the right card ≥8 times out of 10.</div></div>
+            <div class="uc"><div class="uc-id">UC-06 · Hunt</div><div class="uc-t">Set a watch, get the ping</div><div class="uc-flow">Watch "2020 Select #133 Neon Orange Pulsar /7, ≤$60" → nightly scan → ntfy push on match.</div><div class="uc-done">Alert lands on your phone with price, photo, and a link that opens the listing.</div></div>
+            <div class="uc"><div class="uc-id">UC-07 · Hunt</div><div class="uc-t">Kill bad matches</div><div class="uc-flow">A result is a reprint/custom/wrong parallel — tap "not a match," the query template learns the negative keyword.</div><div class="uc-done">The same junk listing never resurfaces for that watch.</div></div>
+            <div class="uc"><div class="uc-id">UC-08 · Photos</div><div class="uc-t">Shoot a card in seconds</div><div class="uc-flow">Phone → needs-photo queue → camera → auto-crop → next card. Rhythm, not friction.</div><div class="uc-done">A 20-card session takes under 10 minutes end to end.</div></div>
+            <div class="uc"><div class="uc-id">UC-09 · Photos</div><div class="uc-t">Buy it, log it, done</div><div class="uc-flow">You win a card on eBay → mark the watch "acquired" → card moves to inventory, rainbow recounts, watch closes.</div><div class="uc-done">One action updates inventory, rainbow %, and watchlist together.</div></div>
+            <div class="uc"><div class="uc-id">UC-10 · Checklist</div><div class="uc-t">Verify a checklist</div><div class="uc-flow">Phase-2 research fills the master checklist for a product; source link stored per checklist.</div><div class="uc-done">Top-10 rainbows show verified totals, not "~" estimates.</div></div>
+            <div class="uc"><div class="uc-id">UC-11 · Checklist</div><div class="uc-t">Discover an unknown parallel</div><div class="uc-flow">eBay listing mentions a parallel not on the checklist → flagged in Import &amp; Checklists for your approve/reject.</div><div class="uc-done">Checklists get more complete over time without silent auto-edits.</div></div>
+            <div class="uc"><div class="uc-id">UC-12 · Featured</div><div class="uc-t">Open on the chase</div><div class="uc-flow">App opens to the Rainbow Room — AD and Faulk banners, meters moving as pickups land.</div><div class="uc-done">One glance answers "how close am I, and what should I buy next?"</div></div>
+          </div>
+        </section>
+
+        <!-- ================= 09 GLOSSARY ================= -->
+        <section id="glossary">
+          <p class="eyebrow"><span class="idx">09</span>The product</p>
+          <h2 class="headline">Every term, <em>plain English</em></h2>
+          <p class="lead">This glossary ships inside the app as tooltips on every term below.</p>
+          <div class="gl-grid">
+            <div class="gl"><b>Rainbow</b><span>Every color parallel of one card (same player, year, product, card #). Completing one is the point of this app.</span></div>
+            <div class="gl"><b>Parallel</b><span>A variant of a base card printed in a different color/pattern (Tie-Dye, Zebra, Gold), usually rarer than base.</span></div>
+            <div class="gl"><b>Prizm / Select / Mosaic</b><span>Panini's chromium card brands — the products where parallels (and rainbows) live.</span></div>
+            <div class="gl"><b>Serial numbered (/25)</b><span>Card stamped with its copy number out of a fixed print run, e.g. 11/25. Lower run = rarer.</span></div>
+            <div class="gl"><b>Print run</b><span>Total copies made of a parallel. The "Qty Manufactured" column in the spreadsheet.</span></div>
+            <div class="gl"><b>1/1</b><span>A one-of-one — the only copy in existence. The grail tier of any rainbow. You own 14.</span></div>
+            <div class="gl"><b>SP / SSP</b><span>Short print / super short print — parallels with no stamped number but known tiny supply (White Sparkle, Kaboom).</span></div>
+            <div class="gl"><b>Raw</b><span>An ungraded card, no case. Cheaper, but condition is your own judgment.</span></div>
+            <div class="gl"><b>Slab</b><span>A card professionally graded and sealed in a labeled case (PSA, BGS, SGC), with a cert number.</span></div>
+            <div class="gl"><b>PSA 10 / BGS 9.5</b><span>Grades — a 1-to-10 condition score from a grading company. Gem Mint 10 commands the premium.</span></div>
+            <div class="gl"><b>Comp</b><span>A recent sold price for the same card — what the market actually pays, vs. what sellers ask.</span></div>
+            <div class="gl"><b>eBay Browse API</b><span>eBay's official search API — how Rambow finds live listings without scraping.</span></div>
+            <div class="gl"><b>Master checklist</b><span>The verified list of every parallel that exists for a card-set. What your rainbow is measured against.</span></div>
+            <div class="gl"><b>Active chase</b><span>A rainbow past 50% completion — gets missing-card images, dashboard placement, and alert eligibility.</span></div>
+          </div>
+        </section>
+
+        <!-- ================= 10 STACK ================= -->
+        <section id="stack">
+          <p class="eyebrow"><span class="idx">10</span>Build</p>
+          <h2 class="headline">Stack &amp; <em>seed</em></h2>
+          <p class="lead">Same stack shapes you already run — nothing exotic, nothing to babysit.</p>
+          <div class="grid-3">
+            <div class="card"><h4>Frontend</h4><p>React + Vite, mobile-first (the photo flow lives on your phone). Rams theme: royal navy chrome, Sol accents, Bone canvas, Archivo display type.</p></div>
+            <div class="card"><h4>Data</h4><p>Supabase — Postgres for cards, checklists, watches, alerts; Storage for card photos and reference images. Single user, simple auth.</p></div>
+            <div class="card"><h4>Jobs &amp; hosting</h4><p>DigitalOcean App Platform, auto-deploy from GitHub. Nightly scan job hits eBay Browse (existing JBCardSearch keys) and pushes via ntfy.</p></div>
+          </div>
+          <h3 class="sub">Data model <span class="tag">Five tables</span></h3>
+          <table class="gtable">
+            <tr><th>Table</th><th>What it holds</th></tr>
+            <tr><td>card_sets</td><td>Player + year + product + card # — the unit a rainbow is measured on (207 seeded)</td></tr>
+            <tr><td>parallels</td><td>Master checklist rows per card_set: name, tier, print run, source URL, status (verified / estimated / ebay-flagged)</td></tr>
+            <tr><td>cards</td><td>Your inventory (593 seeded): parallel link, serial #, grade, purchase price, notes, photo refs</td></tr>
+            <tr><td>watches</td><td>Missing-parallel watches: query template, negative keywords, target price, raw/graded pref, status</td></tr>
+            <tr><td>alerts</td><td>Every match ever pushed: listing id, price, thumbnail, outcome (bought / passed / junk)</td></tr>
+          </table>
+          <p class="cap" style="margin-top:12px">
+            The import script is idempotent: re-running against an updated spreadsheet diffs before writing (UC-02).
+            The spreadsheet stays your editing surface as long as you want it to be — the app can take over as
+            source of truth whenever adding cards in-app feels easier.
+          </p>
+        </section>
+
+        <!-- ================= 11 PHASES ================= -->
+        <section id="phases">
+          <p class="eyebrow"><span class="idx">11</span>Build</p>
+          <h2 class="headline">Four phases. <em>Chase first.</em></h2>
+          <p class="lead">Each phase ends with something you'd actually use that week.</p>
+
+          <div class="phase">
+            <div class="pnum">Phase 1<small>Seed &amp; shelf</small></div>
+            <div>
+              <h4>Everything you own, on screen</h4>
+              <p>Import both sheets, build the inventory browser, player pages, and card detail. Photo capture flow ships here — the needs-photo queue starts working through 593 cards, eBay stock stand-ins fill the gaps meanwhile.</p>
+              <ul>
+                <li>Scorecard: 593/593 cards browsable · import diff-safe · first 50 photos shot on your phone</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase">
+            <div class="pnum">Phase 2<small>Rainbow engine</small></div>
+            <div>
+              <h4>Real completion numbers</h4>
+              <p>Research and verify master checklists — top-10 rainbows first, then outward. Rainbow detail grid, tiers, the 50% rule, active-chase promotion, dashboard rails.</p>
+              <ul>
+                <li>Scorecard: top-10 rainbows verified (no "~" left) · Rainbow Room live · AD &amp; Faulk featured pages up</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase">
+            <div class="pnum">Phase 3<small>The hunt</small></div>
+            <div>
+              <h4>Find and buy</h4>
+              <p>eBay Browse integration, live search on missing parallels, watchlist with target prices, nightly scan, ntfy alerts, "acquired" flow closing the loop back into inventory.</p>
+              <ul>
+                <li>Scorecard: first real under-target alert lands on your phone · first card bought off an alert</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase">
+            <div class="pnum">Phase 4<small>Polish</small></div>
+            <div>
+              <h4>Faces and finish</h4>
+              <p>Reference images auto-fetched for all active chases, glossary tooltips everywhere, junk-filter learning loop, eBay-discovered parallel flagging, photo backlog burn-down.</p>
+              <ul>
+                <li>Scorecard: every &gt;50% rainbow fully illustrated — owned photos + missing references, zero placeholders</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="note-banner">
+            <b>Costs:</b> eBay Browse API is free at this volume (existing keys). Supabase free tier covers a single-user app;
+            DO App Platform is the only recurring line (~$5–12/mo). No paid card-data services in this plan — if a checklist
+            source ever requires one (e.g. Beckett paywall), that's a flag-before-buy conversation, not an assumption.
+          </div>
+        </section>
+
+        <footer>
+          <b>Rambow · Plan v0.1</b> · July 18, 2026 · Seeded from MyFootballCards.xlsx (593 cards, 9 players) ·
+          UI inspired by the LA Rams identity — Rams Royal <span style="color:var(--royal)">■</span> Sol <span style="color:var(--sol)">■</span> Bone <span style="color:#c9c0a6">■</span>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>
