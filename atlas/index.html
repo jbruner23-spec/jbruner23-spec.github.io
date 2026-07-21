@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Atlas — Build Index</title>
+<style>
+  :root{
+    --ground:#F3F5F7; --panel:#FFFFFF; --panel-2:#FAFBFC;
+    --ink:#14202E; --ink-soft:#46586B; --ink-faint:#8595A4;
+    --line:#E2E7EC; --line-soft:#EDF0F3; --accent:#2C8C6A; --accent-ink:#1E6A4F;
+    --shadow:0 1px 2px rgba(20,32,46,.05),0 8px 24px -12px rgba(20,32,46,.14);
+    --shadow-hover:0 2px 4px rgba(20,32,46,.06),0 16px 40px -14px rgba(20,32,46,.24);
+    --b-wayfinder:#2C8C6A; --b-processai:#2C7A8C; --b-herringbone:#BD785C; --b-acmeai:#3B6FB0; --b-procurement:#A8792F; --b-trading:#7C6AC4;
+    --f-pdf:#C0392B; --f-docx:#2B579A; --f-pptx:#D24726; --f-xlsx:#1E7145; --f-mp4:#7C6AC4; --f-html:#0E8A7B; --f-md:#5A6B7C; --f-py:#8A7B2E; --f-link:#2C8C6A; --f-doc:#5A6B7C;
+    --s-live:#2C8C6A; --s-shipped:#4E86A0; --s-wip:#C08A2E; --s-local:#8B7BC7;
+    --mono:ui-monospace,"SF Mono","SFMono-Regular",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){:root{
+    --ground:#0D141C; --panel:#141F2A; --panel-2:#101922;
+    --ink:#E7EDF2; --ink-soft:#A2B1BF; --ink-faint:#6A7B8A;
+    --line:#223140; --line-soft:#1A2734; --accent:#4FB894; --accent-ink:#6FCBAA;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6);
+    --shadow-hover:0 2px 4px rgba(0,0,0,.4),0 18px 44px -14px rgba(0,0,0,.7);
+    --b-wayfinder:#4FB894; --b-processai:#4FA6BC; --b-herringbone:#D2977C; --b-acmeai:#6F9BDB; --b-procurement:#CDA054; --b-trading:#A493E0;
+    --f-pdf:#E06B5D; --f-docx:#6F9BDB; --f-pptx:#E8926F; --f-xlsx:#57B87F; --f-mp4:#A493E0; --f-html:#4FB8A8; --f-md:#8A9BAC; --f-py:#C4B454; --f-link:#4FB894; --f-doc:#8A9BAC;
+    --s-live:#4FB894; --s-shipped:#74A8C2; --s-wip:#DCAE4E; --s-local:#A493E0;
+  }}
+  :root[data-theme="light"]{--ground:#F3F5F7;--panel:#FFFFFF;--panel-2:#FAFBFC;--ink:#14202E;--ink-soft:#46586B;--ink-faint:#8595A4;--line:#E2E7EC;--line-soft:#EDF0F3;--accent:#2C8C6A;--accent-ink:#1E6A4F;--shadow:0 1px 2px rgba(20,32,46,.05),0 8px 24px -12px rgba(20,32,46,.14);--shadow-hover:0 2px 4px rgba(20,32,46,.06),0 16px 40px -14px rgba(20,32,46,.24);--b-wayfinder:#2C8C6A;--b-processai:#2C7A8C;--b-herringbone:#BD785C;--b-acmeai:#3B6FB0;--b-procurement:#A8792F;--b-trading:#7C6AC4;--f-pdf:#C0392B;--f-docx:#2B579A;--f-pptx:#D24726;--f-xlsx:#1E7145;--f-mp4:#7C6AC4;--f-html:#0E8A7B;--f-md:#5A6B7C;--f-py:#8A7B2E;--f-link:#2C8C6A;--f-doc:#5A6B7C;--s-live:#2C8C6A;--s-shipped:#4E86A0;--s-wip:#C08A2E;--s-local:#8B7BC7;}
+  :root[data-theme="dark"]{--ground:#0D141C;--panel:#141F2A;--panel-2:#101922;--ink:#E7EDF2;--ink-soft:#A2B1BF;--ink-faint:#6A7B8A;--line:#223140;--line-soft:#1A2734;--accent:#4FB894;--accent-ink:#6FCBAA;--shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6);--shadow-hover:0 2px 4px rgba(0,0,0,.4),0 18px 44px -14px rgba(0,0,0,.7);--b-wayfinder:#4FB894;--b-processai:#4FA6BC;--b-herringbone:#D2977C;--b-acmeai:#6F9BDB;--b-procurement:#CDA054;--b-trading:#A493E0;--f-pdf:#E06B5D;--f-docx:#6F9BDB;--f-pptx:#E8926F;--f-xlsx:#57B87F;--f-mp4:#A493E0;--f-html:#4FB8A8;--f-md:#8A9BAC;--f-py:#C4B454;--f-link:#4FB894;--f-doc:#8A9BAC;--s-live:#4FB894;--s-shipped:#74A8C2;--s-wip:#DCAE4E;--s-local:#A493E0;}
+
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--ground);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+
+  /* ---------- top bar ---------- */
+  .bar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--ground) 85%,transparent);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line)}
+  .bar-in{max-width:1340px;margin:0 auto;padding:0 22px;display:flex;align-items:center;gap:18px;height:60px}
+  .mark{display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .mark-name{font-weight:700;font-size:16.5px;letter-spacing:-.01em}
+  .mark-sub{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-faint);margin-top:1px}
+  .search{position:relative;flex:1;max-width:420px}
+  .search input{width:100%;height:36px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--ink);padding:0 12px 0 34px;font-family:var(--sans);font-size:14px;outline:none;transition:border-color .15s,box-shadow .15s}
+  .search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+  .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink-faint)}
+  .who{margin-left:auto;display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--ink-faint);cursor:pointer;padding:5px 8px;border-radius:8px}
+  .who:hover{background:var(--panel);color:var(--ink)}
+  .who .avatar{width:23px;height:23px;border-radius:50%;background:color-mix(in srgb,var(--accent) 20%,var(--panel));color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-size:9.5px}
+  .who .lk{color:var(--s-live);display:flex}
+
+  /* ---------- layout ---------- */
+  .shell{max-width:1340px;margin:0 auto;padding:0 22px;display:grid;grid-template-columns:216px minmax(0,1fr);gap:26px;align-items:start}
+  .side{position:sticky;top:74px;max-height:calc(100vh - 92px);overflow-y:auto;padding:20px 0 30px}
+  .main{padding:20px 0 70px;min-width:0}
+
+  /* ---------- sidebar ---------- */
+  .snav-h{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.13em;color:var(--ink-faint);padding:14px 10px 6px}
+  .snav-h:first-child{padding-top:0}
+  .snav a{display:flex;align-items:center;gap:9px;padding:6px 10px;border-radius:8px;font-size:13px;color:var(--ink-soft);cursor:pointer;border:1px solid transparent}
+  .snav a:hover{background:var(--panel);color:var(--ink)}
+  .snav a.sel{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent-ink);font-weight:600;border-color:color-mix(in srgb,var(--accent) 26%,transparent)}
+  .snav a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .snav .n{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+  .snav a.sel .n{color:var(--accent-ink)}
+  .bdot{width:8px;height:8px;border-radius:50%;background:var(--bc);flex-shrink:0}
+  .sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+  /* ---------- launcher ---------- */
+  .sect{display:flex;align-items:baseline;gap:10px;margin:2px 0 11px}
+  .sect h2{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-faint);font-weight:400;margin:0}
+  .sect .ct{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint)}
+  .launcher{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:11px;margin-bottom:30px}
+  .app{position:relative;flex:1;display:flex;flex-direction:column;gap:9px;padding:14px 14px 12px;border-radius:12px;color:#fff;background:var(--bc);overflow:hidden;transition:transform .15s,box-shadow .15s}
+  .app:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover)}
+  .app:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .app .ic{width:29px;height:29px;border-radius:8px;background:rgba(255,255,255,.22);display:grid;place-items:center}
+  .app b{font-size:13.5px;line-height:1.25;letter-spacing:-.01em}
+  .app small{font-family:var(--mono);font-size:10px;opacity:.88;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .app .live{position:absolute;top:11px;right:11px;width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.28)}
+  /* .cp is a SIBLING of .app (valid HTML — no button inside an anchor), so it must be
+     scoped to .app-wrap, not .app. */
+  .app-wrap{position:relative;display:flex}
+  .app-wrap .cp{position:absolute;bottom:10px;right:10px;z-index:2;width:26px;height:26px;border-radius:7px;border:0;background:rgba(255,255,255,.22);color:#fff;display:grid;place-items:center;cursor:pointer;opacity:0;transition:opacity .14s}
+  .app-wrap:hover .cp,.app-wrap .cp:focus-visible{opacity:1}
+  .app-wrap .cp:hover{background:rgba(255,255,255,.36)}
+
+  /* ---------- ledger ---------- */
+  .sorts{margin-left:auto;display:flex;gap:6px}
+  .sortb{border:1px solid var(--line);background:var(--panel);color:var(--ink-soft);font:500 11.5px var(--sans);padding:4px 10px;border-radius:7px;cursor:pointer}
+  .sortb:hover{color:var(--ink);border-color:var(--ink-faint)}
+  .sortb[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+  .ledger{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel)}
+  .lrow{position:relative;display:grid;grid-template-columns:34px minmax(0,1fr) auto auto 32px;gap:13px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line-soft)}
+  .lrow:last-of-type{border-bottom:0}
+  .lrow:hover{background:color-mix(in srgb,var(--accent) 5%,var(--panel))}
+  .lrow:focus-within{background:color-mix(in srgb,var(--accent) 7%,var(--panel))}
+  .lhit{position:absolute;inset:0;z-index:1}
+  .lhit:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:6px}
+  .fbadge{width:33px;height:33px;border-radius:7px;display:grid;place-items:center;font:700 8.5px var(--mono);color:#fff;letter-spacing:.02em;background:var(--fc)}
+  .lt{min-width:0}
+  .lt b{display:block;font-size:13.5px;font-weight:600;letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lt small{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lst{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;padding:2px 7px;border-radius:5px;white-space:nowrap}
+  .lst.live{color:var(--s-live);background:color-mix(in srgb,var(--s-live) 13%,transparent)}
+  .lst.shipped{color:var(--s-shipped);background:color-mix(in srgb,var(--s-shipped) 14%,transparent)}
+  .lst.wip{color:var(--s-wip);background:color-mix(in srgb,var(--s-wip) 16%,transparent)}
+  .lst.local{color:var(--s-local);background:color-mix(in srgb,var(--s-local) 15%,transparent)}
+  .ldt{font-family:var(--mono);font-size:11px;color:var(--ink-faint);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .lact{position:relative;z-index:2;width:29px;height:29px;border-radius:7px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;color:var(--ink-faint);cursor:pointer;transition:color .14s,border-color .14s}
+  .lrow:hover .lact{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .lact:hover{background:color-mix(in srgb,var(--accent) 12%,var(--panel))}
+  .lact.done{color:var(--s-live);border-color:color-mix(in srgb,var(--s-live) 55%,var(--line))}
+  .lact svg{pointer-events:none}
+  .lrow.noaction{opacity:.58}
+  .lrow.noaction .lhit{cursor:default}
+  .nochip{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:5px;color:var(--ink-faint);background:color-mix(in srgb,var(--ink) 8%,transparent);white-space:nowrap}
+
+  .dgroup{display:flex;align-items:center;gap:10px;padding:9px 12px;background:color-mix(in srgb,var(--ink) 3.5%,var(--panel));border-bottom:1px solid var(--line-soft)}
+  .dgroup b{font-size:11.5px;font-weight:600;letter-spacing:.01em}
+  .dgroup span{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint)}
+
+  .empty{display:none;text-align:center;color:var(--ink-faint);padding:54px 0;font-size:14.5px}
+  .empty.show{display:block}
+  .loading{color:var(--ink-faint);padding:46px 0;font-family:var(--mono);font-size:13px}
+  footer{padding:26px 0 50px;color:var(--ink-faint);font-size:12px;font-family:var(--mono);border-top:1px solid var(--line-soft);margin-top:22px}
+
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(14px);background:var(--ink);color:var(--ground);font-size:13px;padding:10px 16px;border-radius:10px;box-shadow:var(--shadow-hover);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:80;display:flex;align-items:center;gap:8px}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast svg{color:var(--s-live)}
+
+  /* ---------- lock ---------- */
+  .lock{position:fixed;inset:0;z-index:100;background:var(--ground);display:none;place-items:center;padding:24px}
+  .lock.show{display:grid}
+  .lock-card{width:100%;max-width:370px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px 28px;box-shadow:var(--shadow-hover);text-align:center}
+  .lock-card h1{font-size:20px;margin:14px 0 6px;letter-spacing:-.02em}
+  .lock-card p{margin:0 0 18px;color:var(--ink-soft);font-size:13.5px}
+  .lock-card input{width:100%;height:42px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);color:var(--ink);padding:0 13px;font-size:14.5px;font-family:var(--sans);outline:none}
+  .lock-card input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+  .lock-card button{width:100%;height:42px;margin-top:10px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-size:14.5px;font-weight:600;cursor:pointer}
+  .lock-card button:hover{background:var(--accent-ink)}
+  .lock-err{color:#C0392B;font-size:12.5px;margin-top:10px;min-height:17px}
+  @media (prefers-color-scheme:dark){.lock-err{color:#E06B5D}}
+
+  @media (max-width:900px){
+    .shell{grid-template-columns:1fr;gap:0}
+    .side{position:static;max-height:none;padding:14px 0 4px;border-bottom:1px solid var(--line)}
+    .snav{display:flex;flex-wrap:wrap;gap:6px}
+    .snav a{border:1px solid var(--line);border-radius:999px;padding:5px 11px}
+    .snav-h{padding:8px 2px 4px;width:100%}
+    .lrow{grid-template-columns:30px minmax(0,1fr) auto 30px;gap:10px}
+    .lst{display:none}
+    .who .t{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="lock" id="lock">
+  <div class="lock-card">
+    <svg width="34" height="34" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="margin:0 auto">
+      <circle cx="16" cy="16" r="14" stroke="var(--accent)" stroke-width="2"/>
+      <path d="M16 6 L20 16 L16 26 L12 16 Z" fill="var(--accent)"/>
+      <circle cx="16" cy="16" r="2.4" fill="var(--panel)"/>
+    </svg>
+    <h1>Atlas is private</h1>
+    <p id="lock-msg">Enter your passphrase to unlock. This device will remember it.</p>
+    <form id="lock-form" autocomplete="off">
+      <input id="lock-pw" type="password" placeholder="Passphrase" aria-label="Passphrase" autocomplete="current-password">
+      <button type="submit">Unlock</button>
+    </form>
+    <div class="lock-err" id="lock-err"></div>
+  </div>
+</div>
+
+<div class="bar">
+  <div class="bar-in">
+    <a class="mark" href="#top" aria-label="Atlas home">
+      <svg width="25" height="25" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <circle cx="16" cy="16" r="14" stroke="var(--accent)" stroke-width="2"/>
+        <path d="M16 6 L20 16 L16 26 L12 16 Z" fill="var(--accent)"/>
+        <circle cx="16" cy="16" r="2.4" fill="var(--panel)"/>
+      </svg>
+      <div><div class="mark-name">Atlas</div><div class="mark-sub">Build Index</div></div>
+    </a>
+    <div class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Search 117 deliverables…" autocomplete="off" aria-label="Search deliverables">
+    </div>
+    <div class="who" id="who" title="Click to lock this device">
+      <span class="lk" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+      <span class="t">Jarrod</span>
+      <span class="avatar">JB</span>
+    </div>
+  </div>
+</div>
+
+<div class="shell" id="top">
+  <aside class="side"><nav class="snav" id="snav" aria-label="Filter library"></nav></aside>
+  <main class="main">
+    <div id="launcher-zone"></div>
+    <div class="sect">
+      <h2 id="ledger-label">Everything else</h2>
+      <span class="ct" id="ledger-ct"></span>
+      <div class="sorts" role="group" aria-label="Sort">
+        <button class="sortb" data-sort="new" aria-pressed="true">Newest</button>
+        <button class="sortb" data-sort="old" aria-pressed="false">Oldest</button>
+        <button class="sortb" data-sort="az" aria-pressed="false">A–Z</button>
+      </div>
+    </div>
+    <div id="ledger"><div class="loading">Loading registry…</div></div>
+    <div class="empty" id="empty">Nothing matches those filters.</div>
+    <footer id="foot">Atlas · private index</footer>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const COPY_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+const CHECK_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>';
+const DL_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 3v11m0 0 4-4m-4 4-4-4"/><path d="M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/></svg>';
+const OPEN_ICON = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>';
+const APP_ICON = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>';
+const STATUS_LABEL = {live:"Live", shipped:"Shipped", wip:"In progress", local:"Local only"};
+const TYPE_LABEL = {app:"Apps", report:"Reports", deck:"Decks", doc:"Docs", tool:"Tools"};
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function fmtDate(d){ if(!d) return ""; const p=d.split("-"); return `${MON[(+p[1])-1]} ${+p[2]}, ${p[0]}`; }
+function fmtShort(d){ if(!d) return ""; const p=d.split("-"); return `${MON[(+p[1])-1]} ${+p[2]}`; }
+function extLabel(e){ return !e ? "—" : e==="link" ? "URL" : e.toUpperCase(); }
+function extVar(e){ return ["pdf","docx","pptx","xlsx","mp4","html","md","py","link"].includes(e) ? e : "doc"; }
+
+const state = {
+  q:"",
+  brand: localStorage.getItem("atlas_brand") || "all",
+  type: localStorage.getItem("atlas_type") || "all",
+  status: localStorage.getItem("atlas_status") || "all",
+  sort: localStorage.getItem("atlas_sort") || "new",
+};
+let DATA = {brands:[], items:[]};
+
+function brandName(k){ const b=DATA.brands.find(x=>x.key===k); return b?b.name:k; }
+
+/* item passes the sidebar scope + search (used by both zones) */
+function matches(i){
+  if(state.brand!=="all" && i.brand!==state.brand) return false;
+  if(state.type!=="all" && i.type!==state.type) return false;
+  if(state.status!=="all" && i.status!==state.status) return false;
+  if(state.q){
+    const hay=((i.title||"")+" "+(i.desc||"")+" "+(i.src||"")+" "+brandName(i.brand)).toLowerCase();
+    if(!hay.includes(state.q)) return false;
+  }
+  return true;
+}
+const isApp = i => !!i.url && i.type==="app";
+
+function sortItems(list){
+  const c=[...list];
+  if(state.sort==="new") c.sort((a,b)=>(b.date||"").localeCompare(a.date||"")||a.title.localeCompare(b.title));
+  else if(state.sort==="old") c.sort((a,b)=>(a.date||"").localeCompare(b.date||"")||a.title.localeCompare(b.title));
+  else c.sort((a,b)=>a.title.localeCompare(b.title));
+  return c;
+}
+
+/* ---------------- sidebar ---------------- */
+function renderSidebar(){
+  const nav=document.getElementById("snav");
+  const all=DATA.items;
+  // counts respect the OTHER active facets so numbers never lie
+  const cnt=(pred)=>all.filter(i=>pred(i)).length;
+  const base=i=>{
+    if(state.q){ const hay=((i.title||"")+" "+(i.desc||"")+" "+(i.src||"")+" "+brandName(i.brand)).toLowerCase(); if(!hay.includes(state.q)) return false; }
+    return true;
+  };
+  let h="";
+  h+=`<div class="snav-h">Library</div>`;
+  h+=`<a data-facet="brand" data-val="all" class="${state.brand==="all"?"sel":""}" tabindex="0" role="button">All items<span class="n">${cnt(i=>base(i)&&(state.type==="all"||i.type===state.type)&&(state.status==="all"||i.status===state.status))}</span></a>`;
+  h+=`<div class="snav-h">Brand</div>`;
+  DATA.brands.forEach(b=>{
+    const n=cnt(i=>base(i)&&i.brand===b.key&&(state.type==="all"||i.type===state.type)&&(state.status==="all"||i.status===state.status));
+    if(!n && state.brand!==b.key) return;
+    h+=`<a data-facet="brand" data-val="${esc(b.key)}" class="${state.brand===b.key?"sel":""}" tabindex="0" role="button"><span class="bdot" style="--bc:var(--b-${esc(b.key)})"></span>${esc(b.name)}<span class="n">${n}</span></a>`;
+  });
+  h+=`<div class="snav-h">Type</div>`;
+  h+=`<a data-facet="type" data-val="all" class="${state.type==="all"?"sel":""}" tabindex="0" role="button">All types<span class="n">${cnt(i=>base(i)&&(state.brand==="all"||i.brand===state.brand)&&(state.status==="all"||i.status===state.status))}</span></a>`;
+  ["app","report","deck","doc","tool"].forEach(t=>{
+    const n=cnt(i=>base(i)&&i.type===t&&(state.brand==="all"||i.brand===state.brand)&&(state.status==="all"||i.status===state.status));
+    if(!n && state.type!==t) return;
+    h+=`<a data-facet="type" data-val="${t}" class="${state.type===t?"sel":""}" tabindex="0" role="button">${TYPE_LABEL[t]}<span class="n">${n}</span></a>`;
+  });
+  h+=`<div class="snav-h">Status</div>`;
+  h+=`<a data-facet="status" data-val="all" class="${state.status==="all"?"sel":""}" tabindex="0" role="button">Any status<span class="n">${cnt(i=>base(i)&&(state.brand==="all"||i.brand===state.brand)&&(state.type==="all"||i.type===state.type))}</span></a>`;
+  ["live","shipped","wip","local"].forEach(s=>{
+    const n=cnt(i=>base(i)&&i.status===s&&(state.brand==="all"||i.brand===state.brand)&&(state.type==="all"||i.type===state.type));
+    if(!n && state.status!==s) return;
+    h+=`<a data-facet="status" data-val="${s}" class="${state.status===s?"sel":""}" tabindex="0" role="button"><span class="sdot" style="background:var(--s-${s})"></span>${STATUS_LABEL[s]}<span class="n">${n}</span></a>`;
+  });
+  nav.innerHTML=h;
+}
+
+/* ---------------- launcher ---------------- */
+function renderLauncher(){
+  const zone=document.getElementById("launcher-zone");
+  const apps=sortItems(DATA.items.filter(i=>isApp(i)&&matches(i)));
+  if(!apps.length){ zone.innerHTML=""; return; }
+  let h=`<div class="sect"><h2>Apps &amp; live surfaces</h2><span class="ct">${apps.length}</span></div><div class="launcher">`;
+  apps.forEach(a=>{
+    const dom=(a.url||"").replace(/^https?:\/\//,"").replace(/\/$/,"");
+    h+=`<div class="app-wrap">
+      <a class="app" style="--bc:var(--b-${esc(a.brand)})" href="${esc(a.url)}" target="_blank" rel="noopener">
+        ${a.status==="live"?'<span class="live" title="Live"></span>':''}
+        <span class="ic">${APP_ICON}</span>
+        <b>${esc(a.title)}</b>
+        <small>${esc(dom)}</small>
+      </a>
+      <button class="cp" data-url="${esc(a.url)}" aria-label="Copy link to ${esc(a.title)}" title="Copy link">${COPY_ICON}</button>
+    </div>`;
+  });
+  zone.innerHTML=h+"</div>";
+}
+
+/* ---------------- ledger ---------------- */
+function renderLedger(){
+  const el=document.getElementById("ledger");
+  const rows=sortItems(DATA.items.filter(i=>!isApp(i)&&matches(i)));
+  document.getElementById("ledger-ct").textContent=rows.length?rows.length:"";
+  document.getElementById("empty").classList.toggle("show", rows.length===0 && !document.querySelectorAll(".app").length);
+  if(!rows.length){ el.innerHTML=""; return; }
+
+  let h='<div class="ledger">', lastGroup=null;
+  rows.forEach(i=>{
+    if(state.sort!=="az"){
+      const g=i.date?`${MON[(+i.date.split("-")[1])-1]} ${i.date.split("-")[0]}`:"Undated";
+      if(g!==lastGroup){ lastGroup=g; const n=rows.filter(r=>r.date&&`${MON[(+r.date.split("-")[1])-1]} ${r.date.split("-")[0]}`===g).length;
+        h+=`<div class="dgroup"><b>${esc(g)}</b><span>${n}</span></div>`; }
+    }
+    const hasUrl=!!i.url, hasFile=!!i.file;
+    let hit, act, chip="";
+    if(hasUrl){
+      hit=`<a class="lhit" href="${esc(i.url)}" target="_blank" rel="noopener" aria-label="Open ${esc(i.title)}"></a>`;
+      act=`<button class="lact" data-url="${esc(i.url)}" aria-label="Copy link to ${esc(i.title)}" title="Copy link">${COPY_ICON}</button>`;
+    } else if(hasFile){
+      hit=`<button class="lhit" data-file="${esc(i.file)}" aria-label="Download ${esc(i.title)}" style="border:0;background:none;width:100%"></button>`;
+      act=`<button class="lact" data-file="${esc(i.file)}" aria-label="Download ${esc(i.title)}" title="Download">${DL_ICON}</button>`;
+    } else {
+      hit=`<span class="lhit"></span>`; act=`<span class="lact" style="border-style:dashed">${OPEN_ICON}</span>`;
+      chip=`<span class="nochip" title="Nothing stored for this one — it lives only on your machine.">No file</span>`;
+    }
+    h+=`<div class="lrow${(!hasUrl&&!hasFile)?" noaction":""}">
+      ${hit}
+      <span class="fbadge" style="--fc:var(--f-${extVar(i.ext)})">${esc(extLabel(i.ext))}</span>
+      <span class="lt"><b>${esc(i.title)}</b><small><span class="bdot" style="--bc:var(--b-${esc(i.brand)})"></span>${esc(brandName(i.brand))} · ${esc(i.desc||"")}</small></span>
+      ${chip||`<span class="lst ${esc(i.status)}">${esc(STATUS_LABEL[i.status]||i.status)}</span>`}
+      <span class="ldt" title="${esc(fmtDate(i.date))}">${esc(fmtShort(i.date))}</span>
+      ${act}
+    </div>`;
+  });
+  el.innerHTML=h+"</div>";
+}
+
+function render(){
+  renderSidebar(); renderLauncher(); renderLedger(); bindCopy();
+  const lbl=document.getElementById("ledger-label");
+  lbl.textContent = document.querySelectorAll(".app").length ? "Everything else" : "All deliverables";
+}
+
+/* ---------------- interactions ---------------- */
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.innerHTML=CHECK_ICON+"<span>"+esc(msg)+"</span>";
+  t.classList.add("show"); clearTimeout(toast._t);
+  toast._t=setTimeout(()=>t.classList.remove("show"),1800);
+}
+
+function bindCopy(){
+  document.querySelectorAll("[data-url]").forEach(btn=>{
+    if(btn.dataset.bound) return; btn.dataset.bound="1";
+    btn.addEventListener("click", async e=>{
+      e.preventDefault(); e.stopPropagation();
+      const url=btn.dataset.url; let ok=false;
+      if(navigator.clipboard && window.isSecureContext){
+        try{ await navigator.clipboard.writeText(url); ok=true; }catch(_){}
+      }
+      if(!ok){
+        try{ const ta=document.createElement("textarea"); ta.value=url; ta.style.position="fixed"; ta.style.top="0"; ta.style.opacity="0";
+          document.body.appendChild(ta); ta.focus(); ta.select(); ok=document.execCommand("copy"); ta.remove(); }catch(_){ ok=false; }
+      }
+      if(ok){ const old=btn.innerHTML; btn.classList.add("done"); btn.innerHTML=CHECK_ICON; toast("Link copied to clipboard");
+        setTimeout(()=>{ btn.classList.remove("done"); btn.innerHTML=old; },1400);
+      } else toast("Couldn't copy — select the link manually");
+    });
+  });
+}
+
+document.getElementById("q").addEventListener("input", e=>{ state.q=e.target.value.trim().toLowerCase(); render(); });
+
+document.getElementById("snav").addEventListener("click", e=>{
+  const a=e.target.closest("a[data-facet]"); if(!a) return;
+  state[a.dataset.facet]=a.dataset.val;
+  localStorage.setItem("atlas_"+a.dataset.facet, a.dataset.val);
+  render();
+});
+document.getElementById("snav").addEventListener("keydown", e=>{
+  if(e.key!=="Enter" && e.key!==" ") return;
+  const a=e.target.closest("a[data-facet]"); if(!a) return;
+  e.preventDefault(); a.click();
+});
+document.querySelectorAll(".sortb").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    state.sort=b.dataset.sort; localStorage.setItem("atlas_sort", state.sort);
+    document.querySelectorAll(".sortb").forEach(x=>x.setAttribute("aria-pressed", x===b?"true":"false"));
+    render();
+  });
+});
+document.querySelectorAll(".sortb").forEach(b=>b.setAttribute("aria-pressed", b.dataset.sort===state.sort?"true":"false"));
+</script>
+<script>
+function boot(d){
+  DATA = {brands:d.brands||[], items:d.items||[]}; render();
+  const foot=document.getElementById("foot"); foot.textContent = `Atlas · ${DATA.items.length} deliverables · private index`;
+}
+
+const LS_KEY = "atlas_pw";
+const lockEl = document.getElementById("lock");
+const lockForm = document.getElementById("lock-form");
+const lockPw = document.getElementById("lock-pw");
+const lockErr = document.getElementById("lock-err");
+const lockMsg = document.getElementById("lock-msg");
+const lockCard = lockEl.querySelector(".lock-card");
+
+function showLock(msg){ if(msg) lockMsg.textContent = msg; lockEl.classList.add("show"); setTimeout(()=>lockPw.focus(), 30); }
+function hideLock(){ lockEl.classList.remove("show"); }
+
+const b64dec = s => Uint8Array.from(atob(s), c=>c.charCodeAt(0));
+async function decryptEnc(pw, enc){
+  const km = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveKey"]);
+  const key = await crypto.subtle.deriveKey(
+    { name:"PBKDF2", salt:b64dec(enc.salt), iterations:enc.iter, hash:enc.hash },
+    km, { name:"AES-GCM", length:256 }, false, ["decrypt"]);
+  return crypto.subtle.decrypt({ name:"AES-GCM", iv:b64dec(enc.iv) }, key, b64dec(enc.ct));
+}
+async function decryptRegistry(pw, enc){
+  return JSON.parse(new TextDecoder().decode(await decryptEnc(pw, enc)));
+}
+async function downloadFile(slug){
+  const pw = localStorage.getItem(LS_KEY);
+  if(!pw){ showLock(); return; }
+  try{
+    toast("Decrypting…");
+    const enc = await fetch("./files/"+encodeURIComponent(slug)+".enc", {cache:"no-store"}).then(r=>{ if(!r.ok) throw new Error("not found"); return r.json(); });
+    const buf = await decryptEnc(pw, enc);
+    const blob = new Blob([buf], {type: enc.mime || "application/octet-stream"});
+    const url = URL.createObjectURL(blob);
+    if((enc.mime||"").startsWith("text/html")){
+      // viewable reports open in a new tab rather than downloading
+      window.open(url, "_blank", "noopener");
+      setTimeout(()=>URL.revokeObjectURL(url), 60000);
+      toast("Opened " + (enc.name || slug));
+    } else {
+      const a = document.createElement("a"); a.href = url; a.download = enc.name || slug;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 4000);
+      toast("Downloaded " + (enc.name || slug));
+    }
+  }catch(err){ toast("Couldn't open file — " + err.message); }
+}
+// Deep-link: atlas.../#file=<slug> opens that report directly once unlocked
+// (navigates the current tab, so no mobile popup-blocker issues).
+function hashFileSlug(){
+  const m = /[#&]file=([^&]+)/.exec(location.hash||"");
+  return m ? decodeURIComponent(m[1]) : null;
+}
+async function openHashFile(){
+  const slug = hashFileSlug();
+  if(!slug) return;
+  const pw = localStorage.getItem(LS_KEY);
+  if(!pw){ showLock("Unlock to open your report."); return; }
+  try{
+    toast("Opening report…");
+    const enc = await fetch("./files/"+encodeURIComponent(slug)+".enc", {cache:"no-store"}).then(r=>{ if(!r.ok) throw new Error("not found"); return r.json(); });
+    const buf = await decryptEnc(pw, enc);
+    const blob = new Blob([buf], {type: enc.mime || "text/html"});
+    location.href = URL.createObjectURL(blob);
+  }catch(err){ toast("Couldn't open report — " + err.message); }
+}
+// one delegated handler: a card or button carrying data-file downloads that file
+document.addEventListener("click", e=>{
+  const t = e.target.closest("[data-file]");
+  if(t){ e.preventDefault(); downloadFile(t.getAttribute("data-file")); }
+});
+
+// Click the identity chip to forget this device (re-locks it).
+const whoEl = document.getElementById("who");
+if(whoEl){
+  whoEl.title = "Click to lock this device";
+  whoEl.addEventListener("click", ()=>{ localStorage.removeItem(LS_KEY); location.reload(); });
+}
+
+// Self-contained preview embeds plaintext inline and skips the lock.
+const inline = document.getElementById("registry-data");
+if(inline){
+  try{ boot(JSON.parse(inline.textContent)); }
+  catch(err){ document.getElementById("sections").innerHTML = `<div class="loading">Bad inline registry (${esc(err.message)}).</div>`; }
+} else {
+  fetch("./registry.enc", {cache:"no-store"})
+    .then(r=>{ if(!r.ok) throw new Error("missing"); return r.json(); })
+    .then(async enc=>{
+      const cached = localStorage.getItem(LS_KEY);
+      if(cached){
+        try{ boot(await decryptRegistry(cached, enc)); openHashFile(); return; }
+        catch(_){ localStorage.removeItem(LS_KEY); }   // password changed since last visit
+      }
+      showLock();
+      lockForm.addEventListener("submit", async e=>{
+        e.preventDefault();
+        lockErr.textContent = "";
+        try{
+          const data = await decryptRegistry(lockPw.value, enc);
+          localStorage.setItem(LS_KEY, lockPw.value);
+          hideLock(); boot(data); openHashFile();
+        }catch(_){
+          lockErr.textContent = "Wrong password.";
+          lockCard.classList.remove("shake"); void lockCard.offsetWidth; lockCard.classList.add("shake");
+          lockPw.select();
+        }
+      });
+    })
+    .catch(()=>{
+      showLock("Not sealed yet — run seal.sh to set your password.");
+      lockForm.addEventListener("submit", e=>{ e.preventDefault(); lockErr.textContent = "Run seal.sh first."; });
+    });
+}
+</script>
+</body>
+</html>
