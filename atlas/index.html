@@ -82,7 +82,34 @@
   .app .live{position:absolute;top:11px;right:11px;width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.28)}
   /* .cp is a SIBLING of .app (valid HTML — no button inside an anchor), so it must be
      scoped to .app-wrap, not .app. */
+  /* real screenshot fills the tile; the brand color stays as the ground it fades into,
+     so a missing/failed capture degrades to exactly the old design */
+  .app .shot{position:absolute;inset:0;background-size:cover;background-position:top center;opacity:0;transition:opacity .35s}
+  .app.hasshot .shot{opacity:1}
+  /* Scrim strength is computed, not eyeballed: a light screenshot (lum ~251) needs alpha
+     >= .79 under the title to clear 4.5:1 against white text. Measured 5/7 tiles failing
+     at the old .55 — these stops hold every captured thumbnail above AA. */
+  .app.hasshot::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.30) 15%,rgba(0,0,0,.88) 32%,rgba(0,0,0,.93) 100%)}
+  .app.hasshot .ic{display:none}
+  .app.hasshot b,.app.hasshot small,.app.hasshot .live{position:relative;z-index:1;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+  .app.hasshot{justify-content:flex-end}
   .app-wrap{position:relative;display:flex}
+
+  /* ---------- ⌘K palette ---------- */
+  .pal{position:fixed;inset:0;z-index:90;background:rgba(6,29,82,.28);backdrop-filter:blur(3px);display:none;padding-top:12vh;justify-content:center}
+  .pal.show{display:flex}
+  .pal-box{width:min(620px,92vw);height:max-content;max-height:64vh;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-hover);overflow:hidden;display:flex;flex-direction:column}
+  .pal-in{width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);font-family:var(--sans);font-size:16px;padding:15px 18px;outline:none}
+  .pal-list{overflow-y:auto;padding:6px}
+  .pal-row{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:8px;cursor:pointer}
+  .pal-row[aria-selected="true"]{background:color-mix(in srgb,var(--accent) 13%,transparent)}
+  .pal-row .fbadge{width:26px;height:26px;font-size:7.5px}
+  .pal-row .t{min-width:0;flex:1}
+  .pal-row .t b{display:block;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pal-row .t small{font-size:11px;color:var(--ink-faint)}
+  .pal-empty{padding:22px;text-align:center;color:var(--ink-faint);font-size:13.5px}
+  .pal-hint{padding:8px 14px;border-top:1px solid var(--line-soft);font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);display:flex;gap:14px}
+  .kbd{font-family:var(--mono);font-size:10px;border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--ink-soft)}
   .app-wrap .cp{position:absolute;bottom:10px;right:10px;z-index:2;width:26px;height:26px;border-radius:7px;border:0;background:rgba(255,255,255,.22);color:#fff;display:grid;place-items:center;cursor:pointer;opacity:0;transition:opacity .14s}
   .app-wrap:hover .cp,.app-wrap .cp:focus-visible{opacity:1}
   .app-wrap .cp:hover{background:rgba(255,255,255,.36)}
@@ -188,7 +215,7 @@
     </a>
     <div class="search">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input id="q" type="search" placeholder="Search 117 deliverables…" autocomplete="off" aria-label="Search deliverables">
+      <input id="q" type="search" placeholder="Search deliverables…   ⌘K" autocomplete="off" aria-label="Search deliverables">
     </div>
     <div class="who" id="who" title="Click to lock this device">
       <span class="lk" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
@@ -215,6 +242,14 @@
     <div class="empty" id="empty">Nothing matches those filters.</div>
     <footer id="foot">Atlas · private index</footer>
   </main>
+</div>
+
+<div class="pal" id="pal" role="dialog" aria-label="Quick open">
+  <div class="pal-box">
+    <input class="pal-in" id="pal-in" type="text" placeholder="Jump to anything…" autocomplete="off" aria-label="Quick open search">
+    <div class="pal-list" id="pal-list"></div>
+    <div class="pal-hint"><span><span class="kbd">↑↓</span> navigate</span><span><span class="kbd">↵</span> open</span><span><span class="kbd">esc</span> close</span></div>
+  </div>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -252,8 +287,8 @@ function matches(i){
   if(state.type!=="all" && i.type!==state.type) return false;
   if(state.status!=="all" && i.status!==state.status) return false;
   if(state.q){
-    const hay=((i.title||"")+" "+(i.desc||"")+" "+(i.src||"")+" "+brandName(i.brand)).toLowerCase();
-    if(!hay.includes(state.q)) return false;
+    // fuzzy, not substring: "tntarch" should find "TNT Platform — Tech Architecture"
+    if(fuzzyScore(state.q, searchable(i)) < relevanceFloor(state.q)) return false;
   }
   return true;
 }
@@ -261,6 +296,13 @@ const isApp = i => !!i.url && i.type==="app";
 
 function sortItems(list){
   const c=[...list];
+  // A search is a ranking question, not just a filter: with a query active the best
+  // matches must lead, or a permissive fuzzy pass buries the obvious answer mid-list.
+  if(state.q){
+    return c.map(i=>({i,s:fuzzyScore(state.q, searchable(i))}))
+            .sort((a,b)=> b.s-a.s || (b.i.date||"").localeCompare(a.i.date||""))
+            .map(x=>x.i);
+  }
   if(state.sort==="new") c.sort((a,b)=>(b.date||"").localeCompare(a.date||"")||a.title.localeCompare(b.title));
   else if(state.sort==="old") c.sort((a,b)=>(a.date||"").localeCompare(b.date||"")||a.title.localeCompare(b.title));
   else c.sort((a,b)=>a.title.localeCompare(b.title));
@@ -274,7 +316,7 @@ function renderSidebar(){
   // counts respect the OTHER active facets so numbers never lie
   const cnt=(pred)=>all.filter(i=>pred(i)).length;
   const base=i=>{
-    if(state.q){ const hay=((i.title||"")+" "+(i.desc||"")+" "+(i.src||"")+" "+brandName(i.brand)).toLowerCase(); if(!hay.includes(state.q)) return false; }
+    if(state.q && fuzzyScore(state.q, searchable(i)) < relevanceFloor(state.q)) return false;   // same scorer as matches(), so sidebar counts can't disagree with the grid
     return true;
   };
   let h="";
@@ -312,7 +354,8 @@ function renderLauncher(){
   apps.forEach(a=>{
     const dom=(a.url||"").replace(/^https?:\/\//,"").replace(/\/$/,"");
     h+=`<div class="app-wrap">
-      <a class="app" style="--bc:var(--b-${esc(a.brand)})" href="${esc(a.url)}" target="_blank" rel="noopener">
+      <a class="app${a.thumb?" hasshot":""}" style="--bc:var(--b-${esc(a.brand)})" href="${esc(a.url)}" target="_blank" rel="noopener"${a.thumb?` data-thumb="${esc(a.thumb)}"`:""}>
+        ${a.thumb?'<span class="shot"></span>':''}
         ${a.status==="live"?'<span class="live" title="Live"></span>':''}
         <span class="ic">${APP_ICON}</span>
         <b>${esc(a.title)}</b>
@@ -364,7 +407,7 @@ function renderLedger(){
 }
 
 function render(){
-  renderSidebar(); renderLauncher(); renderLedger(); bindCopy();
+  renderSidebar(); renderLauncher(); renderLedger(); bindCopy(); paintThumbs();
   const lbl=document.getElementById("ledger-label");
   lbl.textContent = document.querySelectorAll(".app").length ? "Everything else" : "All deliverables";
 }
@@ -418,10 +461,116 @@ document.querySelectorAll(".sortb").forEach(b=>{
   });
 });
 document.querySelectorAll(".sortb").forEach(b=>b.setAttribute("aria-pressed", b.dataset.sort===state.sort?"true":"false"));
+
+/* ---------------- thumbnails ----------------
+   Encrypted like everything else — a public host must not serve readable screenshots of
+   client apps. Decrypted lazily after unlock; a failure just leaves the brand-color tile. */
+const thumbCache = new Map();
+async function paintThumbs(){
+  const pw = localStorage.getItem(LS_KEY);
+  if(!pw) return;
+  for(const el of document.querySelectorAll(".app[data-thumb]")){
+    const key = el.dataset.thumb;
+    const shot = el.querySelector(".shot");
+    if(!shot || shot.dataset.done) continue;
+    shot.dataset.done = "1";
+    try{
+      let url = thumbCache.get(key);
+      if(!url){
+        const enc = await fetch("./thumbs/"+encodeURIComponent(key)+".enc", {cache:"force-cache"})
+          .then(r=>{ if(!r.ok) throw new Error("404"); return r.json(); });
+        const buf = await decryptEnc(pw, enc);
+        url = URL.createObjectURL(new Blob([buf], {type:"image/jpeg"}));
+        thumbCache.set(key, url);
+      }
+      shot.style.backgroundImage = `url("${url}")`;
+    }catch(_){
+      el.classList.remove("hasshot");   // clean fallback to the badge tile
+    }
+  }
+}
+
+/* ---------------- fuzzy scoring ----------------
+   Subsequence match with contiguity + word-boundary bonuses. Beats substring `includes`
+   for "tntarch" -> "TNT Platform — Tech Architecture", which is how people actually type. */
+function fuzzyScore(needle, hay){
+  needle = needle.toLowerCase(); hay = hay.toLowerCase();
+  if(!needle) return 0;
+  if(hay.includes(needle)) return 1000 - hay.indexOf(needle);   // exact substring always wins
+  let score = 0, hi = 0, streak = 0;
+  for(const ch of needle){
+    const found = hay.indexOf(ch, hi);
+    if(found === -1) return -1;                                  // not a subsequence: reject
+    streak = found === hi ? streak + 1 : 0;
+    score += 10 + streak * 6 + (found === 0 || /[\s\-—·/]/.test(hay[found-1]) ? 12 : 0);
+    hi = found + 1;
+  }
+  return score - hay.length * 0.05;                              // prefer tighter titles
+}
+function searchable(i){
+  return [i.title, i.desc, i.src, brandName(i.brand), i.type, (i.tags||[]).join(" ")].filter(Boolean).join(" ");
+}
+
+/* Subsequence matching is permissive by design — great for a RANKED top-12 palette, wrong
+   as a raw filter ("tntarch" passed 163 of 242 rows because those letters appear in order
+   somewhere in most long descriptions). The grid shows everything that passes, so it needs
+   a relevance floor: keep only what scores near the best match. Recomputed per query. */
+let _qBest = 0, _qKey = "";
+function relevanceFloor(q){
+  if(q !== _qKey){
+    _qKey = q;
+    _qBest = DATA.items.reduce((m,i)=>Math.max(m, fuzzyScore(q, searchable(i))), 0);
+  }
+  return _qBest >= 1000 ? 999 : _qBest * 0.62;   // a real substring hit exists -> demand one
+}
+
+/* ---------------- ⌘K quick-open ---------------- */
+const palEl = document.getElementById("pal"), palIn = document.getElementById("pal-in"), palList = document.getElementById("pal-list");
+let palRows = [], palIdx = 0;
+
+function palRender(){
+  const q = palIn.value.trim();
+  const pool = DATA.items.map(i => ({ i, s: q ? fuzzyScore(q, searchable(i)) : (i.date ? Date.parse(i.date) / 1e11 : 0) }))
+    .filter(x => !q || x.s > 0).sort((a,b) => b.s - a.s).slice(0, 12).map(x => x.i);
+  palRows = pool; palIdx = 0;
+  if(!pool.length){ palList.innerHTML = `<div class="pal-empty">Nothing matches “${esc(q)}”.</div>`; return; }
+  palList.innerHTML = pool.map((i,n) => `
+    <div class="pal-row" role="option" aria-selected="${n===0}" data-n="${n}">
+      <span class="fbadge" style="--fc:var(--f-${extVar(i.ext)})">${esc(extLabel(i.ext))}</span>
+      <span class="t"><b>${esc(i.title)}</b><small>${esc(brandName(i.brand))} · ${esc(STATUS_LABEL[i.status]||i.status)}</small></span>
+    </div>`).join("");
+}
+function palMove(d){
+  if(!palRows.length) return;
+  palIdx = (palIdx + d + palRows.length) % palRows.length;
+  [...palList.children].forEach((el,n)=>{ el.setAttribute("aria-selected", n===palIdx); if(n===palIdx) el.scrollIntoView({block:"nearest"}); });
+}
+function palOpen(){ palEl.classList.add("show"); palIn.value=""; palRender(); setTimeout(()=>palIn.focus(),20); }
+function palClose(){ palEl.classList.remove("show"); }
+function palGo(){
+  const i = palRows[palIdx]; if(!i) return;
+  palClose();
+  if(i.url) window.open(i.url, "_blank", "noopener");
+  else if(i.file) downloadFile(i.file);
+  else toast("Nothing stored for this one");
+}
+palIn.addEventListener("input", palRender);
+palList.addEventListener("click", e=>{ const r=e.target.closest(".pal-row"); if(r){ palIdx=+r.dataset.n; palGo(); } });
+palEl.addEventListener("click", e=>{ if(e.target===palEl) palClose(); });
+document.addEventListener("keydown", e=>{
+  if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); palEl.classList.contains("show") ? palClose() : palOpen(); return; }
+  if(!palEl.classList.contains("show")) return;
+  if(e.key==="Escape"){ e.preventDefault(); palClose(); }
+  else if(e.key==="ArrowDown"){ e.preventDefault(); palMove(1); }
+  else if(e.key==="ArrowUp"){ e.preventDefault(); palMove(-1); }
+  else if(e.key==="Enter"){ e.preventDefault(); palGo(); }
+});
 </script>
 <script>
 function boot(d){
   DATA = {brands:d.brands||[], items:d.items||[]}; render();
+  const qi=document.getElementById("q");
+  if(qi) qi.placeholder = `Search ${DATA.items.length} deliverables…   ⌘K`;
   const foot=document.getElementById("foot"); foot.textContent = `Atlas · ${DATA.items.length} deliverables · private index`;
 }
 
