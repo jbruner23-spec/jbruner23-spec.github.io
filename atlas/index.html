@@ -496,7 +496,10 @@ async function paintThumbs(){
 function fuzzyScore(needle, hay){
   needle = needle.toLowerCase(); hay = hay.toLowerCase();
   if(!needle) return 0;
-  if(hay.includes(needle)) return 1000 - hay.indexOf(needle);   // exact substring always wins
+  // Every substring hit must land ABOVE the floor, so ranking can't become filtering:
+  // decaying with position (1000 - idx) put a late match at 826 while the floor sat at 999,
+  // hiding 91 of 98 real "herringbone" matches. Position now only orders, never excludes.
+  if(hay.includes(needle)) return 1000 + 500/(1 + hay.indexOf(needle));
   let score = 0, hi = 0, streak = 0;
   for(const ch of needle){
     const found = hay.indexOf(ch, hi);
@@ -521,7 +524,7 @@ function relevanceFloor(q){
     _qKey = q;
     _qBest = DATA.items.reduce((m,i)=>Math.max(m, fuzzyScore(q, searchable(i))), 0);
   }
-  return _qBest >= 1000 ? 999 : _qBest * 0.62;   // a real substring hit exists -> demand one
+  return _qBest >= 1000 ? 1000 : _qBest * 0.62;  // substring hits exist -> require one (all score >=1000)
 }
 
 /* ---------------- ⌘K quick-open ---------------- */
@@ -558,7 +561,10 @@ palIn.addEventListener("input", palRender);
 palList.addEventListener("click", e=>{ const r=e.target.closest(".pal-row"); if(r){ palIdx=+r.dataset.n; palGo(); } });
 palEl.addEventListener("click", e=>{ if(e.target===palEl) palClose(); });
 document.addEventListener("keydown", e=>{
-  if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); palEl.classList.contains("show") ? palClose() : palOpen(); return; }
+  if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==="k"){ e.preventDefault();
+    // the palette sits at z-index 90, UNDER the lock overlay (100): opening it there focuses
+    // an invisible plaintext input and the passphrase gets typed into it unmasked
+    if(lockEl.classList.contains("show")) return; palEl.classList.contains("show") ? palClose() : palOpen(); return; }
   if(!palEl.classList.contains("show")) return;
   if(e.key==="Escape"){ e.preventDefault(); palClose(); }
   else if(e.key==="ArrowDown"){ e.preventDefault(); palMove(1); }
