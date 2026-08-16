@@ -79,6 +79,11 @@
   .app .ic{width:29px;height:29px;border-radius:8px;background:rgba(255,255,255,.22);display:grid;place-items:center}
   .app b{font-size:13.5px;line-height:1.25;letter-spacing:-.01em}
   .app small{font-family:var(--mono);font-size:10px;opacity:.88;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .app:not(.hasshot) .cap{display:contents}   /* plain tiles: caption adds no box */
+  /* Rows are as tall as the tallest tile, so once thumbnails made tiles 170px the plain
+     tiles had a pool of dead space under their text. Push the icon up and the label down
+     and every tile in the row reads the same regardless of whether it has a screenshot. */
+  .app:not(.hasshot){justify-content:space-between}
   .app .live{position:absolute;top:11px;right:11px;width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.28)}
   /* .cp is a SIBLING of .app (valid HTML — no button inside an anchor), so it must be
      scoped to .app-wrap, not .app. */
@@ -86,13 +91,19 @@
      so a missing/failed capture degrades to exactly the old design */
   .app .shot{position:absolute;inset:0;background-size:cover;background-position:top center;opacity:0;transition:opacity .35s}
   .app.hasshot .shot{opacity:1}
-  /* Scrim strength is computed, not eyeballed: a light screenshot (lum ~251) needs alpha
-     >= .79 under the title to clear 4.5:1 against white text. Measured 5/7 tiles failing
-     at the old .55 — these stops hold every captured thumbnail above AA. */
-  .app.hasshot::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.30) 15%,rgba(0,0,0,.88) 32%,rgba(0,0,0,.93) 100%)}
+  /* A full-tile scrim strong enough for AA text (.88 alpha) blacked out the screenshot —
+     the feature erased its own point. Now the image OWNS the top of the tile and the text
+     sits on an opaque caption bar, so legibility no longer depends on the image at all. */
+  /* Image and caption are flex SIBLINGS, not an absolute image with a fixed-height caption:
+     a two-line title clipped against any fixed height I picked. The caption takes exactly
+     what its text needs and the image absorbs the rest, so no title is ever cut off. */
+  .app.hasshot{padding:0;min-height:170px;gap:0}
   .app.hasshot .ic{display:none}
-  .app.hasshot b,.app.hasshot small,.app.hasshot .live{position:relative;z-index:1;text-shadow:0 1px 3px rgba(0,0,0,.5)}
-  .app.hasshot{justify-content:flex-end}
+  .app.hasshot .shot{position:relative;inset:auto;flex:1;min-height:96px}
+  .app.hasshot .cap{position:relative;z-index:1;background:var(--bc);padding:9px 13px 11px;
+    display:flex;flex-direction:column;gap:2px;flex:0 0 auto}
+  .app.hasshot .cap b{font-size:12.5px;line-height:1.25}
+  .app.hasshot .live{z-index:2}
   .app-wrap{position:relative;display:flex}
 
   /* ---------- ⌘K palette ---------- */
@@ -358,8 +369,7 @@ function renderLauncher(){
         ${a.thumb?'<span class="shot"></span>':''}
         ${a.status==="live"?'<span class="live" title="Live"></span>':''}
         <span class="ic">${APP_ICON}</span>
-        <b>${esc(a.title)}</b>
-        <small>${esc(dom)}</small>
+        <span class="cap"><b>${esc(a.title)}</b><small>${esc(dom)}</small></span>
       </a>
       <button class="cp" data-url="${esc(a.url)}" aria-label="Copy link to ${esc(a.title)}" title="Copy link">${COPY_ICON}</button>
     </div>`;
